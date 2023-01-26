@@ -1,0 +1,21 @@
+package com.app.receiptscanner.database
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+
+@Dao
+interface ReceiptDao {
+    @Query("SELECT * FROM Receipt WHERE id = :id")
+    fun getReceiptById(id: Int): Receipt
+
+    @Query("SELECT * FROM Receipt WHERE parserId = :id")
+    fun getReceiptByParser(id: Int): List<Receipt>
+
+    @Insert
+    fun insertReceipt(receipt: Receipt): Long
+
+    @Delete
+    fun deleteReceipt(receipt: Receipt)
+}

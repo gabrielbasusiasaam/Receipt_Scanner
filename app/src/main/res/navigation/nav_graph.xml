@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navgraph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.app.receiptscanner.layouts.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_accountCreationFragment"
+            app:destination="@id/accountCreationFragment"
+            app:enterAnim="@anim/window_enter"
+            app:exitAnim="@anim/window_exit"
+            app:popEnterAnim="@anim/window_enter"
+            app:popExitAnim="@anim/window_exit" />
+        <action
+            android:id="@+id/action_loginFragment_to_signInFragment"
+            app:destination="@id/signInFragment"
+            app:enterAnim="@anim/window_enter"
+            app:exitAnim="@anim/window_exit"
+            app:popEnterAnim="@anim/window_enter"
+            app:popExitAnim="@anim/window_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/accountCreationFragment"
+        android:name="com.app.receiptscanner.layouts.AccountCreationFragment"
+        android:label="AccountCreationFragment"
+        tools:layout="@layout/fragment_account_creation">
+        <action
+            android:id="@+id/action_accountCreationFragment_to_userMainFragment2"
+            app:destination="@id/userMainFragment"
+            app:enterAnim="@anim/window_enter"
+            app:exitAnim="@anim/window_exit"
+            app:popEnterAnim="@anim/window_enter"
+            app:popExitAnim="@anim/window_exit"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.app.receiptscanner.layouts.SignInFragment"
+        android:label="SignInFragment"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_userMainFragment2"
+            app:destination="@id/userMainFragment"
+            app:enterAnim="@anim/window_enter"
+            app:exitAnim="@anim/window_exit"
+            app:popEnterAnim="@anim/window_enter"
+            app:popExitAnim="@anim/window_exit"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/userMainFragment"
+        android:name="com.app.receiptscanner.layouts.UserMainFragment"
+        android:label="UserMainFragment"
+        tools:layout="@layout/fragment_user_main">
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_userMainFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_userMainFragment_to_receiptFragment"
+            app:destination="@id/receiptFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.app.receiptscanner.layouts.CameraFragment"
+        android:label="CameraFragment" >
+        <action
+            android:id="@+id/action_cameraFragment_to_receiptFragment"
+            app:destination="@id/receiptFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/receiptFragment"
+        android:name="com.app.receiptscanner.layouts.ReceiptFragment"
+        android:label="ReceiptFragment" />
+</navigation>

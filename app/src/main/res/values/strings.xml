@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Receipt Scanner</string>
+
+
+    <!-- Login and Account Creation -->
+    <string name="account_creation">Account Creation</string>
+    <string name="enter_username">Enter Username</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="re_enter_password">Retype Password</string>
+    <string name="biometric_switch">Allow biometric sign-in</string>
+    <string name="create_account_button">Create Account</string>
+    <string name="sign_in">Sign in</string>
+    <string name="biometric_button">Sign in with Biometrics</string>
+
+    <!-- Settings -->
+    <string name="dark_mode">Dark mode</string>
+    <string name="enable_dark_mode">When enabled the app will use a dark interface.</string>
+    <string name="login_page_2">When scanning a receipt, line the edges up with the visual indicator to get the best results!</string>
+</resources>
