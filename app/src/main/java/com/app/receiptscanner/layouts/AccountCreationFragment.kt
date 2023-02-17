@@ -15,6 +15,7 @@ import com.app.receiptscanner.database.SecurityUtil.PASSWORDS_DO_NOT_MATCH
 import com.app.receiptscanner.database.SecurityUtil.PASSWORD_TOO_SHORT
 import com.app.receiptscanner.database.SecurityUtil.USERNAME_EMPTY
 import com.app.receiptscanner.database.SecurityUtil.USERNAME_TAKEN
+import com.app.receiptscanner.database.SecurityUtil.checkFlag
 import com.app.receiptscanner.databinding.FragmentAccountCreationBinding
 import com.app.receiptscanner.viewmodels.AccountCreationViewmodel
 import com.app.receiptscanner.viewmodels.AccountCreationViewmodelFactory
@@ -67,19 +68,20 @@ class AccountCreationFragment : Fragment() {
                         findNavController().navigate(action)
                     }
                     false -> {
-                        if (result.reason and USERNAME_TAKEN == USERNAME_TAKEN) {
+                        if (checkFlag(result.reason, USERNAME_TAKEN)) {
                             binding.usernameField.error = "Username is taken"
                         }
-                        if (result.reason and ILLEGAL_CHARACTER == ILLEGAL_CHARACTER) {
-                            binding.usernameField.error = "Username must contain only alphanumeric characters"
+                        if (checkFlag(result.reason, ILLEGAL_CHARACTER)) {
+                            binding.usernameField.error =
+                                "Username must contain only alphanumeric characters"
                         }
-                        if(result.reason and USERNAME_EMPTY == USERNAME_EMPTY) {
+                        if (checkFlag(result.reason, USERNAME_EMPTY)) {
                             binding.usernameField.error = "Enter a username"
                         }
-                        if (result.reason and PASSWORD_TOO_SHORT == PASSWORD_TOO_SHORT) {
+                        if (checkFlag(result.reason, PASSWORD_TOO_SHORT)) {
                             binding.passwordField.error = "Password must be at least 8 characters"
                         }
-                        if (result.reason and PASSWORDS_DO_NOT_MATCH == PASSWORDS_DO_NOT_MATCH) {
+                        if (checkFlag(result.reason, PASSWORDS_DO_NOT_MATCH)) {
                             binding.passwordRetryField.error = "Passwords do not match"
                         }
                     }

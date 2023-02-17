@@ -20,13 +20,17 @@ object SecurityUtil {
 
     }
 
-    const val VALID = 0b00000000
-    const val PASSWORD_TOO_SHORT = 0b00000001
-    const val PASSWORD_INCORRECT =  0b00000010
-    const val PASSWORDS_DO_NOT_MATCH = 0b00000100
-    const val USERNAME_TAKEN = 0b00001000
-    const val USERNAME_DOES_NOT_EXIST = 0b00010000
-    const val USERNAME_EMPTY = 0b00100000
-    const val ILLEGAL_CHARACTER = 0b01000000
+    fun checkFlag(inputFlag: Int, testFlag: Int): Boolean {
+        return inputFlag and testFlag == testFlag
+    }
+
+    const val VALID = 0
+    const val PASSWORD_TOO_SHORT = 1 shl 0
+    const val PASSWORD_INCORRECT =  1 shl 1
+    const val PASSWORDS_DO_NOT_MATCH = 1 shl 2
+    const val USERNAME_TAKEN = 1 shl 3
+    const val USERNAME_DOES_NOT_EXIST = 1 shl 4
+    const val USERNAME_EMPTY = 1 shl 5
+    const val ILLEGAL_CHARACTER = 1 shl 6
 
 }

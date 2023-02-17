@@ -1,11 +1,11 @@
 package com.app.receiptscanner.viewmodels
 
-import androidx.multidex.MultiDexApplication
+import android.app.Application
 import com.app.receiptscanner.database.ReceiptDatabase
 import com.app.receiptscanner.database.ReceiptRepository
 import com.app.receiptscanner.database.UserRepository
 
-class ReceiptApplication : MultiDexApplication() {
+class ReceiptApplication : Application() {
     val database by lazy { ReceiptDatabase.getDatabase(this) }
 
     val userRepository by lazy {

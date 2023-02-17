@@ -36,7 +36,7 @@ class ReceiptViewmodel(
     fun clearFields() = fields.clear()
 
     fun setField(title: String, value: Any) {
-        fields[title] = value
+        fields[title.uppercase()] = value
     }
 
     fun getFields() = fields
