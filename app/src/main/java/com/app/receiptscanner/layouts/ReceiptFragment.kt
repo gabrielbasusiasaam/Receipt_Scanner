@@ -1,6 +1,7 @@
 package com.app.receiptscanner.layouts
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +40,7 @@ class ReceiptFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val fields = receiptViewmodel.getFields()
+        Log.e("FIELDS", fields.toString())
         binding.receiptRecyclerView.adapter = ReceiptAdapter(
             activity,
             arrayListOf(

@@ -1,19 +1,18 @@
 package com.app.receiptscanner.parser
 
-
-data class TokenRelation(
+data class TokenField(
     val content: List<Regex>,
     val dataCount: Int,
     val flag: Int
 ) {
-    class TokenRelationsBuilder {
-        private val relations = arrayListOf<TokenRelation>()
+    class TokenFieldBuilder {
+        private val relations = arrayListOf<TokenField>()
         fun addRegexRelation(
             regex: String,
             dataCount: Int,
             checkLines: Int
-        ): TokenRelationsBuilder {
-            relations.add(TokenRelation(listOf(Regex(regex)), dataCount, checkLines))
+        ): TokenFieldBuilder {
+            relations.add(TokenField(listOf(Regex(regex)), dataCount, checkLines))
             return this
         }
 
@@ -21,9 +20,9 @@ data class TokenRelation(
             regex: ArrayList<String>,
             dataCount: Int,
             checkLines: Int
-        ): TokenRelationsBuilder {
+        ): TokenFieldBuilder {
             val regexMap = regex.map { Regex(it) }
-            relations.add(TokenRelation(regexMap, dataCount, checkLines))
+            relations.add(TokenField(regexMap, dataCount, checkLines))
             return this
         }
 
@@ -31,9 +30,9 @@ data class TokenRelation(
             content: ArrayList<String>,
             dataCount: Int,
             checkLines: Int
-        ): TokenRelationsBuilder {
+        ): TokenFieldBuilder {
             val contentMap = content.map { Regex(it.uppercase()) }
-            relations.add(TokenRelation(contentMap, dataCount, checkLines))
+            relations.add(TokenField(contentMap, dataCount, checkLines))
             return this
         }
 
@@ -41,17 +40,17 @@ data class TokenRelation(
             content: String,
             dataCount: Int,
             checkLines: Int
-        ): TokenRelationsBuilder {
-            relations.add(TokenRelation(listOf(Regex(content.uppercase())), dataCount, checkLines))
+        ): TokenFieldBuilder {
+            relations.add(TokenField(listOf(Regex(content.uppercase())), dataCount, checkLines))
             return this
         }
 
-        fun clear(): TokenRelationsBuilder {
+        fun clear(): TokenFieldBuilder {
             relations.clear()
             return this
         }
 
-        fun build(): ArrayList<TokenRelation> {
+        fun build(): ArrayList<TokenField> {
             return relations
         }
     }

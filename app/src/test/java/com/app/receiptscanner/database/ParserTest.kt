@@ -1,20 +1,22 @@
 package com.app.receiptscanner.database
 
+import android.graphics.Rect
 import com.app.receiptscanner.parser.Parser
 import com.app.receiptscanner.parser.Token
 import com.app.receiptscanner.parser.Token.Companion.TYPE_DATA
 import com.app.receiptscanner.parser.Token.Companion.TYPE_FIELD
-import com.app.receiptscanner.parser.TokenRelation.Companion.CHECK_AFTER
-import com.app.receiptscanner.parser.TokenRelation.Companion.CHECK_BEFORE
-import com.app.receiptscanner.parser.TokenRelation.TokenRelationsBuilder
+import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
+import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BEFORE
+import com.app.receiptscanner.parser.TokenField.TokenFieldBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+@Suppress("UNUSED_VARIABLE")
 class ParserTest {
     //region Tests for the tokenizer
     @Test
     fun fullReceiptTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("TOTAL", 1, CHECK_AFTER)
             .addKeyWordRelation("CARD", 1, CHECK_AFTER)
             .addKeyWordRelation("Date", 1, CHECK_AFTER)
@@ -78,7 +80,7 @@ class ParserTest {
 
     @Test
     fun fieldWithDataTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("Total", 1, CHECK_AFTER)
             .build()
 
@@ -95,7 +97,7 @@ class ParserTest {
 
     @Test
     fun inputWithoutFieldsTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("Total", 1, CHECK_AFTER)
             .build()
 
@@ -112,7 +114,7 @@ class ParserTest {
 
     @Test
     fun emptyStringTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("Total", 1, CHECK_AFTER)
             .build()
 
@@ -129,15 +131,15 @@ class ParserTest {
 
     @Test
     fun fieldsAndDataTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("MID", 1, CHECK_AFTER)
             .addKeyWordRelation("TID", 1, CHECK_AFTER)
             .build()
         val expectedTokens = arrayListOf(
-            Token(TYPE_FIELD, arrayListOf("MID"), 0, tokenRelations[0]),
-            Token(TYPE_DATA, arrayListOf("10192"), 0),
-            Token(TYPE_FIELD, arrayListOf("TID"), 0, tokenRelations[1]),
-            Token(TYPE_DATA, arrayListOf("1211"), 0)
+            Token(TYPE_FIELD, arrayListOf("MID"), 0, Rect(), tokenRelations[0]),
+            Token(TYPE_DATA, arrayListOf("10192"), 0, Rect()),
+            Token(TYPE_FIELD, arrayListOf("TID"), 0, Rect(), tokenRelations[1]),
+            Token(TYPE_DATA, arrayListOf("1211"), 0, Rect())
         )
 
         val parser = Parser(tokenRelations)
@@ -150,7 +152,7 @@ class ParserTest {
 
     @Test
     fun emptyInputTest() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("MID", 1, CHECK_AFTER)
             .addKeyWordRelation("TID", 1, CHECK_AFTER)
             .build()
@@ -165,7 +167,7 @@ class ParserTest {
 
     @Test
     fun tokenizeAndAST() {
-        val tokenRelations = TokenRelationsBuilder()
+        val tokenRelations = TokenFieldBuilder()
             .addKeyWordRelation("TOTAL", 1, CHECK_AFTER)
             .addKeyWordRelation("CARD", 1, CHECK_AFTER)
             .build()
@@ -177,10 +179,10 @@ class ParserTest {
             """
 
         val expectedTokens = arrayListOf(
-            Token(TYPE_FIELD, arrayListOf("TOTAL"), 0, tokenRelations[0]),
-            Token(TYPE_DATA, arrayListOf("5.07"), 0),
-            Token(TYPE_FIELD, arrayListOf("CARD"), 1, tokenRelations[1]),
-            Token(TYPE_DATA, arrayListOf("5.07"), 1)
+            Token(TYPE_FIELD, arrayListOf("TOTAL"), 0, Rect(), tokenRelations[0]),
+            Token(TYPE_DATA, arrayListOf("5.07"), 0, Rect()),
+            Token(TYPE_FIELD, arrayListOf("CARD"), 1, Rect(), tokenRelations[1]),
+            Token(TYPE_DATA, arrayListOf("5.07"), 1, Rect())
         )
         val parser = Parser(tokenRelations)
         val tokens = parser.testTokenize(testData)
@@ -195,9 +197,9 @@ class ParserTest {
     @Test
     fun inputOnlyData() {
         val tokens = arrayListOf(
-            Token(TYPE_DATA, arrayListOf("£1.99"), 0),
-            Token(TYPE_DATA, arrayListOf("3.44"), 0),
-            Token(TYPE_DATA, arrayListOf("9.10"), 0)
+            Token(TYPE_DATA, arrayListOf("£1.99"), 0, Rect()),
+            Token(TYPE_DATA, arrayListOf("3.44"), 0, Rect()),
+            Token(TYPE_DATA, arrayListOf("9.10"), 0, Rect())
         )
 
         val parser = Parser(listOf())
@@ -206,5 +208,71 @@ class ParserTest {
         assert(root.childNodes.isEmpty())
     }
 
+    //endregion
+
+    //region Tests for relationship generation
+    @Test
+    fun relationshipGenerationTest() {
+        val tokenRelations = TokenFieldBuilder()
+            .addKeyWordRelation("TOTAL", 1, CHECK_AFTER)
+            .addKeyWordRelation("CARD", 1, CHECK_AFTER)
+            .addKeyWordRelation("Date", 1, CHECK_AFTER)
+            .addKeyWordRelation("Time", 3, CHECK_AFTER)
+            .addKeyWordRelation("MID", 1, CHECK_AFTER)
+            .addKeyWordRelation("TID", 1, CHECK_AFTER)
+            .addKeyWordRelation("TRNS", 2, CHECK_AFTER)
+            .addKeyWordRelation("Visa", 2, CHECK_AFTER)
+            .addKeyWordRelation("Amount", 1, CHECK_AFTER)
+            .addKeyWordRelation(arrayListOf("AUTH", "CODE"), 1, CHECK_AFTER)
+            .addRegexRelation("\\d+\\.\\d+A", -1, CHECK_BEFORE)
+            .build()
+
+        val parser = Parser(tokenRelations)
+        val testData = """
+    						Peckham
+					VAT NO. GB350396892
+
+		Cookie Hazelnut										0.99A
+        Plain Brioche Buns									1.09A
+        Southern Fried Steak								2.99A
+    	----------------------------------------------------------
+    	TOTAL												5.07
+        CARD												 5.07
+        ----------------------------------------------------------
+		*CUSTOMER COPY* - PLEASE RETAIN RECEIPT
+        Date: 25/01/23								Time: 15:18:13
+        MID: ***10192								 TID: ****1211
+        TRNS NO: UK061574013831025231
+        Visa Debit								  ****************
+        A0000000031010
+        Contactless											  SALE
+        Amount £5.07
+        Verification Not Required
+        APPROVED								  AUTH CODE 998388
+        PLEASE DEBIT ACCOUNT WITH TOTAL SHOWN
+        ----------------------------------------------------------
+
+        VAT RATE				SALES £						 VAT £
+        A 	  0%				 	5.07					 0.00
+        ----------------------------------------------------------
+        |			     Download the Lidl Plus app			     |
+        |			     to save on your next shop			     |
+        ----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+		0615	013831/74						25.01.23	 15:17
+        	Enter survey: lidl.co.uk/haveyoursay
+            & you can win £100 of Lidl Vouchers
+
+        """
+        val tokens = parser.testTokenize(testData)
+    }
     //endregion
 }

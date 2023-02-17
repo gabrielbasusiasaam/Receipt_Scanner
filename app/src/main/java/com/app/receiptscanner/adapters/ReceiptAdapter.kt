@@ -24,15 +24,15 @@ class ReceiptAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val field = data[position]
-        val value = when(fields.containsKey(field.title)) {
-            true -> fields[field.title]
+        val value = when(fields.containsKey(field.title.uppercase())) {
+            true -> fields[field.title.uppercase()]
             else -> field.defaultValue
         }
         holder.binding.fieldTitle.text = field.alias
         holder.binding.fieldInput.editText?.let {
             it.setText(value.toString())
             it.doAfterTextChanged { content ->
-                fields[field.title] = content.toString()
+                fields[field.title.uppercase()] = content.toString()
             }
         }
     }

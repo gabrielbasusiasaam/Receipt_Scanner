@@ -24,8 +24,8 @@ import androidx.navigation.fragment.findNavController
 import com.app.receiptscanner.R
 import com.app.receiptscanner.databinding.FragmentCameraBinding
 import com.app.receiptscanner.parser.Parser
-import com.app.receiptscanner.parser.TokenRelation
-import com.app.receiptscanner.parser.TokenRelation.TokenRelationsBuilder
+import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
+import com.app.receiptscanner.parser.TokenField.TokenFieldBuilder
 import com.app.receiptscanner.viewmodels.ReceiptApplication
 import com.app.receiptscanner.viewmodels.ReceiptViewmodel
 import com.app.receiptscanner.viewmodels.ReceiptViewmodelFactory
@@ -33,6 +33,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
+@Suppress("UNUSED_VARIABLE", "unused")
 class CameraFragment : Fragment() {
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
@@ -131,21 +132,16 @@ class CameraFragment : Fragment() {
                     recogniser.process(inputImage).addOnSuccessListener {
                         Log.e("TR", "SUCCESS - ${it.textBlocks.size}")
                         cameraLocked = false
-                        val tokenRelations = TokenRelationsBuilder()
-                            .addKeyWordRelation("Items", 1, TokenRelation.CHECK_AFTER)
-                            .addRegexRelation(
-                                arrayListOf("\\d+\\.\\d+", "A"),
-                                -1,
-                                TokenRelation.CHECK_BEFORE
-                            ).build()
+                        val tokenRelations = TokenFieldBuilder()
+                            .addKeyWordRelation("Items", 1, CHECK_AFTER)
+                            .addKeyWordRelation(arrayListOf("BALANCE", "TO", "PAY"), 1, CHECK_AFTER)
+                            .build()
 
                         val parser = Parser(tokenRelations)
-                        val tree = parser.createSyntaxTree(parser.tokenize(it))
-                        tree.childNodes.forEach { node ->
-                            node.childNodes.firstOrNull()?.let { value ->
-                                receiptViewmodel.setField(node.content.first(), value.content)
-                            }
-                        }
+                        val tokens = parser.tokenize(it)
+                        val relations = parser.generateRelations(tokens)
+                        val syntaxTree = parser.createSyntaxTree(relations)
+
                         findNavController().navigate(R.id.action_cameraFragment_to_receiptFragment)
                     }.addOnFailureListener {
                         cameraLocked = false
