@@ -9,6 +9,7 @@ class SignInViewmodelFactory(
     private val userRepository: UserRepository,
     private val application: Application,
 ): ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(SignInViewmodel::class.java)) {
             return SignInViewmodel(userRepository, application) as T

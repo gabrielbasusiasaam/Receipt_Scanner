@@ -12,9 +12,7 @@ class ReceiptAdapter(
     private val data: ArrayList<ReceiptField>,
     private val fields: HashMap<String, Any>
 ) : RecyclerView.Adapter<ReceiptAdapter.ViewHolder>() {
-    inner class ViewHolder(val binding: ReceiptFieldBinding) : RecyclerView.ViewHolder(binding.root) {
-
-    }
+    inner class ViewHolder(val binding: ReceiptFieldBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(context)

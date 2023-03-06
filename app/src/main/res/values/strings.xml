@@ -16,4 +16,9 @@
     <string name="dark_mode">Dark mode</string>
     <string name="enable_dark_mode">When enabled the app will use a dark interface.</string>
     <string name="login_page_2">When scanning a receipt, line the edges up with the visual indicator to get the best results!</string>
+
+    <!-- Receipt Creation -->
+    <string name="create_with_camera">Create using camera</string>
+    <string name="create_manually">Create Manually</string>
+
 </resources>

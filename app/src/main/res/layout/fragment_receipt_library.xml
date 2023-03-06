@@ -18,9 +18,7 @@
         app:layout_constraintEnd_toStartOf="@+id/selectionField"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:startIconDrawable="@drawable/ic_baseline_search_24"
-        android:layout_marginRight="4dp"
-        android:layout_marginLeft="8dp">
+        app:startIconDrawable="@drawable/ic_baseline_search_24">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -35,7 +33,6 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/searchField"
         app:layout_constraintEnd_toEndOf="parent">
 

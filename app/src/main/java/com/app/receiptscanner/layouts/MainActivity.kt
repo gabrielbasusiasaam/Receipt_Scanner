@@ -23,7 +23,4 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 }

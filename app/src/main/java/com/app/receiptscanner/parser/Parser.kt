@@ -1,7 +1,5 @@
 package com.app.receiptscanner.parser
 
-import android.graphics.Rect
-import android.util.Log
 import com.app.receiptscanner.parser.Token.Companion.TYPE_DATA
 import com.app.receiptscanner.parser.Token.Companion.TYPE_FIELD
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_ABOVE
@@ -16,11 +14,25 @@ import kotlin.math.cos
 import kotlin.math.sqrt
 
 class Parser(private val fields: List<TokenField>) {
+    /**
+     * Creates an Abstract Syntax Tree of depth 2 from the tokenRelationships generated from the generateRelations
+     * The childnodes of the root are the fields for the receipt, whilst the childnodes of a field is the data
+     * associated with said field
+     *
+     * @param relations a list of TokenRelationships from the generateRelations method
+     * @return the root Node of the syntax tree.
+     **/
     fun createSyntaxTree(relations: List<TokenRelationship>): Node {
         val fields = relations.filter { it.token.type == TYPE_FIELD }
         val root = Node(arrayListOf(), null, arrayListOf(), false)
+        /**
+         * For each field the tokens above are stored as child nodes until it either
+         * has no tokens in the specified direction, runs into another field or all
+         * the data necessary for the field has been acquired **/
         fields.forEach { field ->
+            //stops evaluating this field if there is no associated TokenField
             val relationship = field.token.relation ?: return@forEach
+
             var dataCount = relationship.dataCount
             var currentRelation: TokenRelationship? = field
             val decrementCount = relationship.dataCount != -1
@@ -44,40 +56,20 @@ class Parser(private val fields: List<TokenField>) {
         return root
     }
 
-    fun createTestSyntaxTree(tokens: List<Token>): Node {
-        val root = Node(arrayListOf(), null, arrayListOf(), false)
-        var currentNode = root
-        var dataCount = 0
 
-        tokens.forEach { token ->
-            if (token.type == TYPE_FIELD) {
-                currentNode = Node(token.content, root, arrayListOf(), false)
-                root.childNodes.add(currentNode)
-                dataCount = token.relation?.dataCount ?: -1
-            } else {
-                if (dataCount > 0) {
-                    dataCount -= 1
-                    val node = Node(token.content, currentNode, arrayListOf(), true)
-                    currentNode.childNodes.add(node)
-                }
-            }
-        }
-        return root
-    }
 
-    private fun printTree(root: Node, indent: String = "") {
-        Log.e("TR", "$indent${root.content}")
-        if (root.childNodes.isEmpty()) {
-            Log.e("TR", "")
-            return
-        }
-        Log.e("TR", " {")
-        for (node in root.childNodes) {
-            printTree(node, "$indent   ")
-        }
-        Log.e("TR", "$indent}")
-    }
-
+    /**
+     * Splits the result of MLKit OCR into Tokens for further processing. elements are first split
+     * into lines based on their angle from a given pivot element, and then ordered by x position,
+     * before finally being filtered of illegal characters and assigned a token.
+     * If the element matches one of the valid fields, it is assigned a type of TYPE_FIELD and
+     * has the field stored with it.
+     * Otherwise it has a type of TYPE_DATA
+     *
+     * @param text the Text Object produced via MLkit OCR
+     * @return a list of tokens ordered first by line, then by x position
+     * @see Text
+     */
     fun tokenize(text: Text): List<Token> {
         val tokens = arrayListOf<Token>()
         val elements = arrayListOf<Element>()
@@ -86,6 +78,7 @@ class Parser(private val fields: List<TokenField>) {
                 elements.addAll(line.elements)
             }
         }
+//        if(elements.isEmpty()) return tokens; Use for testing
         elements.sortBy { it.boundingBox?.centerY() }
         var pivot: Element = elements[0]
         val elementArray = arrayListOf<Pair<Element, Int>>()
@@ -163,28 +156,14 @@ class Parser(private val fields: List<TokenField>) {
         return tokens
     }
 
-    fun testTokenize(text: String): List<Token> {
-        val lines = text.split("\n").filterNot { it.isEmpty() }
-        val tokens = arrayListOf<Token>()
-        lines.forEachIndexed { lineNumber, line ->
-            val elements = line.uppercase().split(*delimiters).filterNot { it.isEmpty() }
-            elements.forEach { element ->
-                var tokenType = TYPE_DATA
-                var relation: TokenField? = null
-                for (field in fields) {
-                    if (field.content.first().matches(element)) {
-                        tokenType = TYPE_FIELD
-                        relation = field
-                        break
-                    }
-                }
-                val token = Token(tokenType, arrayListOf(element), lineNumber, Rect(), relation)
-                tokens.add(token)
-            }
-        }
-        return tokens
-    }
 
+    /**
+     * Generates a set of relations which store references to the tokens surrounding each token.
+     * A relation is null if there is no token adjacent to it in the specified direction
+     *
+     * @param tokens a list of tokens produced through the tokenize method
+     * @return a list of TokenRelationships which store references to the surrounding tokens
+     **/
     fun generateRelations(tokens: List<Token>): List<TokenRelationship> {
         val relationships = tokens.map { TokenRelationship(it) }
         val lines = hashMapOf<Int, ArrayList<TokenRelationship>>()

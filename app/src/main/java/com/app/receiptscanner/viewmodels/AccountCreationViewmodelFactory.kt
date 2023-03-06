@@ -9,6 +9,7 @@ class AccountCreationViewmodelFactory(
     private val userRepository: UserRepository,
     private val application: Application,
 ): ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(AccountCreationViewmodel::class.java)) {
             return AccountCreationViewmodel(userRepository, application) as T

@@ -4,6 +4,11 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 
 object SecurityUtil {
+    /**
+     * Generates a random 256 byte long value for use as a salt
+     *
+     * @return the salt as a hexadecimal string
+     */
     fun generateSalt(): String {
         val random = SecureRandom.getInstance("SHA1PRNG")
         val bytes = ByteArray(256)
@@ -11,6 +16,13 @@ object SecurityUtil {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
+    /**
+     * Generates a SHA-256 hash for use during authentication
+     *
+     * @param password the user's password
+     * @param salt the salt generated when first storing the password
+     * @return the hash
+     */
     fun hash(password: String, salt: String): String {
         val messageDigest = MessageDigest.getInstance("SHA-256")
         val saltedPassword = "$password:$salt"
@@ -20,9 +32,17 @@ object SecurityUtil {
 
     }
 
+    /**
+     * Checks whether a given flag is enabled in a bit field
+     *
+     * @param inputFlag the bitfield to test
+     * @param testFlag the flag to test against
+     * @return a boolean value signifying whether or not the flag was enabled
+     */
     fun checkFlag(inputFlag: Int, testFlag: Int): Boolean {
         return inputFlag and testFlag == testFlag
     }
+
 
     const val VALID = 0
     const val PASSWORD_TOO_SHORT = 1 shl 0

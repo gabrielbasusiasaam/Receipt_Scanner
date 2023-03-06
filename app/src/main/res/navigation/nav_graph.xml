@@ -64,11 +64,11 @@
             android:name="userId"
             app:argType="integer" />
         <action
-            android:id="@+id/action_userMainFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
-        <action
             android:id="@+id/action_userMainFragment_to_receiptFragment"
             app:destination="@id/receiptFragment" />
+        <action
+            android:id="@+id/action_userMainFragment_to_receiptCreationFragment"
+            app:destination="@id/receiptCreationFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
@@ -82,4 +82,19 @@
         android:id="@+id/receiptFragment"
         android:name="com.app.receiptscanner.layouts.ReceiptFragment"
         android:label="ReceiptFragment" />
+    <fragment
+        android:id="@+id/receiptCreationFragment"
+        android:name="com.app.receiptscanner.layouts.ReceiptCreationFragment"
+        android:label="ReceiptCreationFragment" >
+        <action
+            android:id="@+id/action_receiptCreationFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_receiptCreationFragment_to_receiptFragment"
+            app:destination="@id/receiptFragment"
+            app:enterAnim="@anim/window_enter"
+            app:exitAnim="@anim/window_exit"
+            app:popEnterAnim="@anim/window_enter"
+            app:popExitAnim="@anim/window_exit" />
+    </fragment>
 </navigation>

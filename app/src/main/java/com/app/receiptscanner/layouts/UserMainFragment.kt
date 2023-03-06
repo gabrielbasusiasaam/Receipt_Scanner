@@ -69,7 +69,7 @@ class UserMainFragment : Fragment() {
         binding.userTabs.tabGravity = TabLayout.GRAVITY_FILL
 
         binding.floatingActionButton.setOnClickListener {
-            findNavController().navigate(R.id.action_userMainFragment_to_cameraFragment)
+            findNavController().navigate(R.id.action_userMainFragment_to_receiptCreationFragment)
         }
     }
 }

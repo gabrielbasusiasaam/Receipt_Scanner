@@ -1,7 +1,6 @@
 package com.app.receiptscanner.database
 
 import android.graphics.Rect
-import com.app.receiptscanner.parser.Parser
 import com.app.receiptscanner.parser.Token
 import com.app.receiptscanner.parser.Token.Companion.TYPE_DATA
 import com.app.receiptscanner.parser.Token.Companion.TYPE_FIELD
@@ -30,7 +29,7 @@ class ParserTest {
             .addRegexRelation("\\d+\\.\\d+A", -1, CHECK_BEFORE)
             .build()
 
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val testData = """
     						Peckham
 					VAT NO. GB350396892
@@ -85,7 +84,7 @@ class ParserTest {
             .build()
 
         val testData = "Total: £1.00"
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val expected = arrayListOf(Pair("TOTAL", TYPE_FIELD), Pair("£1.00", TYPE_DATA))
         val result = parser.testTokenize(testData)
 
@@ -102,7 +101,7 @@ class ParserTest {
             .build()
 
         val testData = "5.07, 1.33"
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val expected = arrayListOf(Pair("5.07", TYPE_DATA), Pair("1.33", TYPE_DATA))
         val result = parser.testTokenize(testData)
 
@@ -119,7 +118,7 @@ class ParserTest {
             .build()
 
         val testData = ""
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val expected = arrayListOf<Token>()
         val result = parser.testTokenize(testData)
 
@@ -142,7 +141,7 @@ class ParserTest {
             Token(TYPE_DATA, arrayListOf("1211"), 0, Rect())
         )
 
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val root = parser.createTestSyntaxTree(expectedTokens)
         root.childNodes.forEachIndexed { index, field ->
             assertEquals(expectedTokens[2 * index].content, field.content)
@@ -159,7 +158,7 @@ class ParserTest {
 
         val emptyTokens = arrayListOf<Token>()
 
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val root = parser.createTestSyntaxTree(emptyTokens)
 
         assert(root.childNodes.isEmpty())
@@ -184,7 +183,7 @@ class ParserTest {
             Token(TYPE_FIELD, arrayListOf("CARD"), 1, Rect(), tokenRelations[1]),
             Token(TYPE_DATA, arrayListOf("5.07"), 1, Rect())
         )
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val tokens = parser.testTokenize(testData)
         val root = parser.createTestSyntaxTree(tokens)
         assertEquals(expectedTokens, tokens)
@@ -202,7 +201,7 @@ class ParserTest {
             Token(TYPE_DATA, arrayListOf("9.10"), 0, Rect())
         )
 
-        val parser = Parser(listOf())
+        val parser = TestParser(listOf())
         val root = parser.createTestSyntaxTree(tokens)
 
         assert(root.childNodes.isEmpty())
@@ -227,7 +226,7 @@ class ParserTest {
             .addRegexRelation("\\d+\\.\\d+A", -1, CHECK_BEFORE)
             .build()
 
-        val parser = Parser(tokenRelations)
+        val parser = TestParser(tokenRelations)
         val testData = """
     						Peckham
 					VAT NO. GB350396892

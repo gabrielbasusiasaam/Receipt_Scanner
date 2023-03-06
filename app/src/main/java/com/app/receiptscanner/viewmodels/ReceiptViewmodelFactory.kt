@@ -11,6 +11,7 @@ class ReceiptViewmodelFactory(
     private val receiptRepository: ReceiptRepository,
     private val application: Application,
 ): ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(ReceiptViewmodel::class.java)) {
             return ReceiptViewmodel(userRepository, receiptRepository, application) as T
