@@ -1,5 +1,6 @@
 package com.app.receiptscanner.database
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -18,6 +19,16 @@ class ReceiptRepository(
 
     suspend fun getGroupReceipts(id: Int) = withContext(dispatcher) {
         return@withContext groupEntryDao.getGroupEntries(id)
+    }
+
+    suspend fun insertReceipt(receipt: Receipt) = withContext(dispatcher) {
+        return@withContext receiptDao.insertReceipt(receipt)
+    }
+
+    suspend fun insertUserReceipt(receiptId: Int, userId: Int, isGlobal: Boolean) = withContext(dispatcher) {
+        val userReceipt = UserReceipt(receiptId, userId, isGlobal)
+        Log.e("UserReceipt", "userID - $userId, receiptID - $receiptId")
+        userReceiptDao.insertUserReceipt(userReceipt)
     }
 
     suspend fun createGroup(name: String, receipts: List<Receipt> = listOf()) = withContext(dispatcher) {

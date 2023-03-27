@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.security.crypto.EncryptedFile
 import androidx.security.crypto.MasterKey
 import com.app.receiptscanner.database.Receipt
+import com.app.receiptscanner.parser.FieldTemplate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -37,7 +40,6 @@ class StorageHandler(private val applicationContext: Context) {
             .build()
 
         val file = File(directory, filename)
-        if (!file.exists()) file.mkdir()
 
         return EncryptedFile.Builder(
             applicationContext,
@@ -55,7 +57,7 @@ class StorageHandler(private val applicationContext: Context) {
      * @param storageDirectory the file path for the application's internal storage
      * @return a NormalizedReceipt containing all the fields for the stored receipt
      */
-    fun readReceipt(receipt: Receipt, storageDirectory: String): NormalizedReceipt {
+    suspend fun readReceipt(receipt: Receipt, storageDirectory: String) = withContext(Dispatchers.IO){
         val encryptedFile = getEncryptedFile(storageDirectory, "id-${receipt.id}")
         val byteArrayOutputStream = ByteArrayOutputStream()
         encryptedFile.openFileInput().use { fileStream ->
@@ -68,13 +70,16 @@ class StorageHandler(private val applicationContext: Context) {
         val data = byteArrayOutputStream.toByteArray()
         val json = JSONObject(data.toString(StandardCharsets.UTF_8))
         val name: String = json[FIELD_NAME].toString()
-        val fields = hashMapOf<List<String>, String>()
+        val type: Int = json[FIELD_TYPE].toString().toInt()
+        val fields = FieldTemplate.getFieldsById(type)
         json.keys().forEach {
             if (it != FIELD_NAME) {
-                fields[it.split(" ")] = json[it].toString()
+                val identifier = ArrayList(it.split(SEPARATOR))
+                val fieldData = ArrayList(json[it].toString().split(SEPARATOR))
+                fields.set(identifier, fieldData)
             }
         }
-        return NormalizedReceipt(name, receipt.dataCreated, receipt.photoPath, fields)
+        return@withContext NormalizedReceipt(name, receipt.dateCreated, receipt.photoPath, type, fields)
     }
 
     /**
@@ -85,13 +90,18 @@ class StorageHandler(private val applicationContext: Context) {
      * @param normalizedReceipt a standardized version of the receipt to be stored
      * @param storageDirectory the file path for the application's internal storage
      */
-    fun storeReceipt(receipt: Receipt, normalizedReceipt: NormalizedReceipt, storageDirectory: String) {
+    suspend fun storeReceipt(
+        receipt: Receipt,
+        normalizedReceipt: NormalizedReceipt,
+        storageDirectory: String
+    ) = withContext(Dispatchers.IO) {
         val encryptedFile = getEncryptedFile(storageDirectory, "id-${receipt.id}")
         val json = JSONObject()
         json.put(FIELD_NAME, normalizedReceipt.name)
-        normalizedReceipt.fields.forEach {
-            val key = it.key.joinToString(" ")
-            json.put(key, it.value)
+        json.put(FIELD_TYPE, normalizedReceipt.type)
+        normalizedReceipt.fields.getMap().forEach {
+            val key = it.key.joinToString(SEPARATOR)
+            json.put(key, it.value.data.joinToString(SEPARATOR))
         }
         val data = json.toString().toByteArray()
         encryptedFile.openFileOutput().use {
@@ -100,7 +110,9 @@ class StorageHandler(private val applicationContext: Context) {
     }
 
     companion object {
+        private const val SEPARATOR = ":"
         private const val FIELD_NAME = "Name"
+        private const val FIELD_TYPE = "Type"
         private const val RECEIPT_SUB_PATH = "/receipts/"
     }
 }

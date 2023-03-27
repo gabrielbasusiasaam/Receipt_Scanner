@@ -1,11 +1,13 @@
 package com.app.receiptscanner.parser
 
+import android.util.Log
 import com.app.receiptscanner.parser.Token.Companion.TYPE_DATA
 import com.app.receiptscanner.parser.Token.Companion.TYPE_FIELD
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_ABOVE
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BEFORE
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BELOW
+import com.app.receiptscanner.storage.NormalizedReceipt
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.Text.Element
 import kotlin.math.PI
@@ -28,7 +30,8 @@ class Parser(private val fields: List<TokenField>) {
         /**
          * For each field the tokens above are stored as child nodes until it either
          * has no tokens in the specified direction, runs into another field or all
-         * the data necessary for the field has been acquired **/
+         * the data necessary for the field has been acquired
+         **/
         fields.forEach { field ->
             //stops evaluating this field if there is no associated TokenField
             val relationship = field.token.relation ?: return@forEach
@@ -56,8 +59,6 @@ class Parser(private val fields: List<TokenField>) {
         return root
     }
 
-
-
     /**
      * Splits the result of MLKit OCR into Tokens for further processing. elements are first split
      * into lines based on their angle from a given pivot element, and then ordered by x position,
@@ -66,7 +67,7 @@ class Parser(private val fields: List<TokenField>) {
      * has the field stored with it.
      * Otherwise it has a type of TYPE_DATA
      *
-     * @param text the Text Object produced via MLkit OCR
+     * @param text the Text Object produced via MLKit OCR
      * @return a list of tokens ordered first by line, then by x position
      * @see Text
      */
@@ -78,18 +79,29 @@ class Parser(private val fields: List<TokenField>) {
                 elements.addAll(line.elements)
             }
         }
-//        if(elements.isEmpty()) return tokens; Use for testing
+        //Exits early if the OCR found no text
+        if(elements.isEmpty()) return tokens
         elements.sortBy { it.boundingBox?.centerY() }
         var pivot: Element = elements[0]
         val elementArray = arrayListOf<Pair<Element, Int>>()
         var currentLine = 0
         elementArray.add(Pair(elements[0], 0))
         val lower = cos((PI / 180.0f) * MAX_ANGLE)
+        /**
+         * - Line construction section -
+         *  Iterates through the elements and compares the angle between the pivot element and the
+         *  current element with the maximum angle allowed for a line. If the angle is lower than
+         *  the maximum angle the element is added to the current line, otherwise it becomes the
+         *  pivot and starts a new line
+         */
         for (i in 1 until elements.size) {
             val dx = (elements[i].boundingBox!!.centerX() - pivot.boundingBox!!.centerX()).toFloat()
             val dy = (elements[i].boundingBox!!.centerY() - pivot.boundingBox!!.centerY()).toFloat()
+
+            // Calculates the cosine of the angle between the line connecting
+            // current element and the pivot, and the x axis
             val unitX = abs(dx / sqrt(dx * dx + dy * dy))
-            if (unitX < lower || unitX > 1.0f) {
+            if (unitX < lower) {
                 pivot = elements[i]
                 currentLine++
             }
@@ -152,10 +164,9 @@ class Parser(private val fields: List<TokenField>) {
                 index++
             }
         }
-
+        Log.e("TOKENS", elementArray.toString() )
         return tokens
     }
-
 
     /**
      * Generates a set of relations which store references to the tokens surrounding each token.
@@ -204,8 +215,24 @@ class Parser(private val fields: List<TokenField>) {
         return relationships
     }
 
+    fun createReceipt(root: Node, type: Int) : NormalizedReceipt? {
+        val nodeFields = root.childNodes
+        if(root.childNodes.isEmpty()) return null
+
+        val template = FieldTemplate.getFieldsById(type)
+        nodeFields.forEach {
+            val data = arrayListOf<String>()
+            it.childNodes.forEach { node ->
+                data.addAll(node.content)
+            }
+            template.set(it.content, data)
+        }
+        val currentDate = System.currentTimeMillis()
+        return NormalizedReceipt("", currentDate, "", type, template)
+    }
+
     companion object {
-        const val MAX_ANGLE = 2
+        const val MAX_ANGLE = 2.0f
         val delimiters = arrayOf(" ", ",", ":", "\n", "\t", "-")
     }
 }

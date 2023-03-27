@@ -2,7 +2,9 @@
 
 package com.app.receiptscanner.layouts
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
@@ -23,6 +26,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.app.receiptscanner.R
 import com.app.receiptscanner.databinding.FragmentCameraBinding
+import com.app.receiptscanner.parser.FieldTemplate.MARKS_AND_SPENCERS_ID
 import com.app.receiptscanner.parser.Parser
 import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
 import com.app.receiptscanner.parser.TokenField.TokenFieldBuilder
@@ -33,7 +37,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
-@Suppress("UNUSED_VARIABLE", "unused")
+@Suppress("UNUSED_VARIABLE", "unused", "UNCHECKED_CAST")
 class CameraFragment : Fragment() {
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
@@ -55,7 +59,18 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
+        val requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (!it) findNavController().popBackStack()
+            }
 
+        val isPermitted = ContextCompat.checkSelfPermission(
+            activity,
+            Manifest.permission.CAMERA,
+        )
+        if (isPermitted != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
         binding.captureButton.setOnClickListener {
             if (!cameraLocked) {
                 takePicture()
@@ -141,7 +156,16 @@ class CameraFragment : Fragment() {
                         val tokens = parser.tokenize(it)
                         val relations = parser.generateRelations(tokens)
                         val syntaxTree = parser.createSyntaxTree(relations)
-
+                        val receipt = parser.createReceipt(syntaxTree, MARKS_AND_SPENCERS_ID)
+                        if (receipt == null) {
+                            Toast.makeText(
+                                activity,
+                                "Failed to create receipt! Please try again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@addOnSuccessListener
+                        }
+                        receiptViewmodel.setNormalizedReceipt(receipt)
                         findNavController().navigate(R.id.action_cameraFragment_to_receiptFragment)
                     }.addOnFailureListener {
                         cameraLocked = false

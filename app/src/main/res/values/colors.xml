@@ -9,5 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="tab_light_color">#DDDDEE</color>
+    <color name="card_color">#F2F2F2</color>
+    <color name="library_color">#DDDDDD</color>
 
 </resources>

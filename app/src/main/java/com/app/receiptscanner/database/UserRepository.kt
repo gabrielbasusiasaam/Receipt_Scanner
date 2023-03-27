@@ -86,13 +86,14 @@ class UserRepository(private val userDao: UserDao) {
 
             val salt = SecurityUtil.generateSalt()
             val saltedPassword = SecurityUtil.hash(password, salt)
-            val user = User(
+            val record = User(
                 username = username,
                 passwordHash = saltedPassword,
                 salt = salt,
                 allowsBiometrics = allowsBiometrics
             )
-            userDao.insertUser(user)
+            val id = userDao.insertUser(record).toInt()
+            val user = User(id, username, saltedPassword, salt, allowsBiometrics)
             return@withContext UserResult(true, user)
         }
 

@@ -20,6 +20,9 @@ abstract class ReceiptDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ReceiptDatabase? = null
 
+        /**
+         * Returns a singleton instance of the receipt database
+         */
         fun getDatabase(context: Context) = INSTANCE ?: synchronized(this) {
             val instance =
                 Room.databaseBuilder(context, ReceiptDatabase::class.java, "receipt_database")

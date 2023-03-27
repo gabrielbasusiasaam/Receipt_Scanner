@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.app.receiptscanner.adapters.LibraryAdapter
 import com.app.receiptscanner.databinding.FragmentReceiptLibraryBinding
 import com.app.receiptscanner.viewmodels.ReceiptApplication
 import com.app.receiptscanner.viewmodels.ReceiptViewmodel
@@ -37,8 +39,14 @@ class ReceiptLibraryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val adapter = LibraryAdapter(activity, listOf())
+        binding.libraryRecyclerView.adapter = adapter
+        binding.libraryRecyclerView.layoutManager = LinearLayoutManager(activity)
         viewmodel.userReceipts.observe(viewLifecycleOwner) {
-            Log.e("Library", "Size: ${it.size}")
+            Log.e("Observer", "CALLED!")
+            viewmodel.loadReceiptData {
+                adapter.setReceipts(it)
+            }
         }
     }
 }

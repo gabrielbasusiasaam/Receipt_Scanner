@@ -20,5 +20,7 @@
     <!-- Receipt Creation -->
     <string name="create_with_camera">Create using camera</string>
     <string name="create_manually">Create Manually</string>
+    <string name="create_receipt_button">Create Receipt</string>
+    <string name="receipt_name_hint">Title</string>
 
 </resources>

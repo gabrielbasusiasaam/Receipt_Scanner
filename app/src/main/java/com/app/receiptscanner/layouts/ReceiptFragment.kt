@@ -1,19 +1,22 @@
 package com.app.receiptscanner.layouts
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.app.receiptscanner.R
 import com.app.receiptscanner.adapters.ReceiptAdapter
-import com.app.receiptscanner.adapters.ReceiptField
 import com.app.receiptscanner.databinding.FragmentReceiptBinding
+import com.app.receiptscanner.storage.StorageHandler
 import com.app.receiptscanner.viewmodels.ReceiptApplication
 import com.app.receiptscanner.viewmodels.ReceiptViewmodel
 import com.app.receiptscanner.viewmodels.ReceiptViewmodelFactory
+import kotlinx.coroutines.launch
 
 class ReceiptFragment : Fragment() {
     private var _binding: FragmentReceiptBinding? = null
@@ -39,24 +42,36 @@ class ReceiptFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fields = receiptViewmodel.getFields()
-        Log.e("FIELDS", fields.toString())
+        val receipt = receiptViewmodel.getReceipt()
+        val storageHandler = StorageHandler(activity)
         binding.receiptRecyclerView.adapter = ReceiptAdapter(
             activity,
-            arrayListOf(
-                ReceiptField("Title", "Title", 0),
-                ReceiptField("Pay", "Cost", 0),
-                ReceiptField("MID", "MID",  0),
-                ReceiptField("Items", "Items", 0),
-                ReceiptField("CARD", "Card", 0)
-            ),
-            fields
+            receipt
         )
         binding.receiptRecyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.createReceiptButton.setOnClickListener {
+            when (!binding.receiptTitle.editText?.text.isNullOrBlank()) {
+                true -> {
+                    receiptViewmodel.createReceipt(System.currentTimeMillis(), "", "") {
+                        lifecycleScope.launch {
+                            receipt.name = binding.receiptTitle.editText?.text.toString()
+                            storageHandler.storeReceipt(it, receipt, activity.filesDir.path)
+                            receiptViewmodel.loadUserReceipts()
+                        }
+                    }
+                    findNavController().popBackStack(R.id.userMainFragment, false)
+                }
+                false -> {
+                    binding.receiptTitle.error =
+                        "A name must be set before the receipt can be created."
+                }
+            }
+
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        receiptViewmodel.clearFields()
+        receiptViewmodel.getReceipt().fields.clearAll()
     }
 }

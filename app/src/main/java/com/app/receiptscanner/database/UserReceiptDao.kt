@@ -1,6 +1,7 @@
 package com.app.receiptscanner.database
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 
 @Dao
@@ -10,4 +11,7 @@ interface UserReceiptDao {
 
     @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE isGlobal = 1")
     fun getGlobalReceipts(): List<Receipt>
+
+    @Insert
+    fun insertUserReceipt(userReceipt: UserReceipt)
 }

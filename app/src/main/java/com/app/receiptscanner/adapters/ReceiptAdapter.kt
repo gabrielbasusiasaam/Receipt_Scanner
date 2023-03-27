@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.app.receiptscanner.databinding.ReceiptFieldBinding
+import com.app.receiptscanner.storage.NormalizedReceipt
 
 class ReceiptAdapter(
     private val context: Context,
-    private val data: ArrayList<ReceiptField>,
-    private val fields: HashMap<String, Any>
+    private val receipt: NormalizedReceipt
 ) : RecyclerView.Adapter<ReceiptAdapter.ViewHolder>() {
     inner class ViewHolder(val binding: ReceiptFieldBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -21,19 +21,15 @@ class ReceiptAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val field = data[position]
-        val value = when(fields.containsKey(field.title.uppercase())) {
-            true -> fields[field.title.uppercase()]
-            else -> field.defaultValue
-        }
-        holder.binding.fieldTitle.text = field.alias
+        val (key, field) = receipt.fields.get(position)
+        holder.binding.fieldInput.hint = field.alias
         holder.binding.fieldInput.editText?.let {
-            it.setText(value.toString())
+            it.setText(field.data.firstOrNull() ?: "")
             it.doAfterTextChanged { content ->
-                fields[field.title.uppercase()] = content.toString()
+                receipt.fields.set(key, arrayListOf(content.toString()))
             }
         }
     }
 
-    override fun getItemCount() = data.size
+    override fun getItemCount() = receipt.fields.getMap().size
 }

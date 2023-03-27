@@ -98,7 +98,7 @@ class SignInFragment : Fragment() {
             .build()
 
         binding.signInButton.setOnClickListener {
-            val username = binding.usernameField.editText?.text.toString()
+            val username = binding.usernameField.editText?.text.toString().trim()
             val password = binding.passwordField.editText?.text.toString()
             lifecycleScope.launch {
                 val result = viewmodel.verify(username, password)

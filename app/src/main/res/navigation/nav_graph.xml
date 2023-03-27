@@ -65,7 +65,8 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_userMainFragment_to_receiptFragment"
-            app:destination="@id/receiptFragment" />
+            app:destination="@id/receiptFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_userMainFragment_to_receiptCreationFragment"
             app:destination="@id/receiptCreationFragment" />
@@ -73,19 +74,22 @@
     <fragment
         android:id="@+id/cameraFragment"
         android:name="com.app.receiptscanner.layouts.CameraFragment"
-        android:label="CameraFragment" >
+        android:label="CameraFragment"
+        tools:layout="@layout/fragment_camera">
         <action
             android:id="@+id/action_cameraFragment_to_receiptFragment"
             app:destination="@id/receiptFragment" />
     </fragment>
     <fragment
         android:id="@+id/receiptFragment"
+        tools:layout="@layout/fragment_receipt"
         android:name="com.app.receiptscanner.layouts.ReceiptFragment"
-        android:label="ReceiptFragment" />
+        android:label="ReceiptFragment"/>
     <fragment
         android:id="@+id/receiptCreationFragment"
         android:name="com.app.receiptscanner.layouts.ReceiptCreationFragment"
-        android:label="ReceiptCreationFragment" >
+        tools:layout="@layout/fragment_receipt_creation"
+        android:label="ReceiptCreationFragment">
         <action
             android:id="@+id/action_receiptCreationFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
