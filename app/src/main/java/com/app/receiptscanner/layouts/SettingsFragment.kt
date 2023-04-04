@@ -14,6 +14,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val darkKey = getString(R.string.dark_mode)
         val darkModePreference: SwitchPreference? = findPreference(darkKey)
 
+        // Refreshes the screen once the user changes their theme to apply the changes visually
         darkModePreference?.setOnPreferenceChangeListener { _, newValue ->
             val mode = if (newValue as Boolean)
                 AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO

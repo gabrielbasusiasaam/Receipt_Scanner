@@ -54,9 +54,16 @@ class SignInFragment : Fragment() {
         var biometricSupported = true
         val executor = ContextCompat.getMainExecutor(activity)
         var user: User? = null
+        // A callback executed after the user has attempted biometric authentication.
+        // If authentication is successful, the user is sent to their library, otherwise
+        // nothing happens
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
+                // This line has the possibility of throwing a null pointer exception.
+                // However, if this were to happen, it would signify a major security concern as it
+                // means that there is a method of logging in without an account. As a result it is
+                // better off just crashing in that case, rather than trying to handle it
                 val action = SignInFragmentDirections
                     .actionSignInFragmentToUserMainFragment2(user!!.id)
                 findNavController().navigate(action)
@@ -68,7 +75,11 @@ class SignInFragment : Fragment() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 it.resultCode
             }
+
+        // Checks if the user's device supports biometric authentication
         when (biometricManager.canAuthenticate(DEVICE_CREDENTIAL or BIOMETRIC_WEAK)) {
+            // If the user's device supports biometrics, but they haven't set it up, the user is
+            // shown a prompt allowing them to setup biometric authentication
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
                     putExtra(
@@ -79,6 +90,8 @@ class SignInFragment : Fragment() {
                 try {
                     activityResultLauncher.launch(enrollIntent)
                 } catch (e: ActivityNotFoundException) {
+                    // If, for whatever reason, the prompt is unable to be made, biometric support
+                    // is disabled.
                     Toast.makeText(
                         activity,
                         "Biometrics are not supported for this device",
@@ -87,6 +100,7 @@ class SignInFragment : Fragment() {
                     biometricSupported = false
                 }
             }
+            // If the device doesn't have the correct hardware, biometric functionality is disabled
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> biometricSupported = false
             else -> {}
         }
@@ -98,10 +112,15 @@ class SignInFragment : Fragment() {
             .build()
 
         binding.signInButton.setOnClickListener {
+            // Username is trimmed as whitespace is not allowed, whereas the password isn't as it is
+            // impossible to differentiate visually between characters when entering the password,
+            // so using spaces in a password is viable
             val username = binding.usernameField.editText?.text.toString().trim()
             val password = binding.passwordField.editText?.text.toString()
             lifecycleScope.launch {
                 val result = viewmodel.verify(username, password)
+                // If the user is successfully authenticated they are sent directly to their library
+                // Otherwise they are shown what is wrong with their current input
                 when (result.isSuccess) {
                     true -> {
                         val action = SignInFragmentDirections
@@ -129,6 +148,9 @@ class SignInFragment : Fragment() {
                     }
                     else -> {
                         user = viewmodel.getUser(username)
+                        // If the following line were to throw a null pointer exception, it would
+                        // suggest that there is an issue with the database as it was unable to
+                        // fetch a user that exists
                         if (!user!!.allowsBiometrics) {
                             Toast.makeText(
                                 activity,

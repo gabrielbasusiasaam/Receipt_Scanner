@@ -23,4 +23,14 @@
     <string name="create_receipt_button">Create Receipt</string>
     <string name="receipt_name_hint">Title</string>
 
+    <!-- Statistics calculation -->
+    <string name="calculate_button">Calculate</string>
+    <string name="start_date">Select Start Date</string>
+    <string name="end_date">Select End Date</string>
+    <string name="date_output">%1$s date: %2$s</string>
+    <string name="calculate_statistics">Calculate receipt statistics</string>
+
+    <!-- Statistics results -->
+    <string name="view_dist">View Provider cost distribution</string>
+    <string name="view_graph">View cost over time graph</string>
 </resources>

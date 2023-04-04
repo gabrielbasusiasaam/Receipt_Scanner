@@ -70,6 +70,9 @@
         <action
             android:id="@+id/action_userMainFragment_to_receiptCreationFragment"
             app:destination="@id/receiptCreationFragment" />
+        <action
+            android:id="@+id/action_userMainFragment_to_statisticsPromptFragment"
+            app:destination="@id/statisticsPromptFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
@@ -82,14 +85,14 @@
     </fragment>
     <fragment
         android:id="@+id/receiptFragment"
-        tools:layout="@layout/fragment_receipt"
         android:name="com.app.receiptscanner.layouts.ReceiptFragment"
-        android:label="ReceiptFragment"/>
+        android:label="ReceiptFragment"
+        tools:layout="@layout/fragment_receipt" />
     <fragment
         android:id="@+id/receiptCreationFragment"
         android:name="com.app.receiptscanner.layouts.ReceiptCreationFragment"
-        tools:layout="@layout/fragment_receipt_creation"
-        android:label="ReceiptCreationFragment">
+        android:label="ReceiptCreationFragment"
+        tools:layout="@layout/fragment_receipt_creation">
         <action
             android:id="@+id/action_receiptCreationFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
@@ -101,4 +104,18 @@
             app:popEnterAnim="@anim/window_enter"
             app:popExitAnim="@anim/window_exit" />
     </fragment>
+    <fragment
+        android:id="@+id/statisticsPromptFragment"
+        android:name="com.app.receiptscanner.layouts.StatisticsPromptFragment"
+        android:label="StatisticsPromptFragment"
+        tools:layout="@layout/fragment_statistics_prompt" >
+        <action
+            android:id="@+id/action_statisticsPromptFragment_to_statisticsResultFragment"
+            app:destination="@id/statisticsResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/statisticsResultFragment"
+        tools:layout="@layout/fragment_statistics_result"
+        android:name="com.app.receiptscanner.layouts.StatisticsResultFragment"
+        android:label="StatisticsResultFragment" />
 </navigation>

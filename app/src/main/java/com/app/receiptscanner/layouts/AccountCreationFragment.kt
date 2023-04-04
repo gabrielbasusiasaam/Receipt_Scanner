@@ -43,6 +43,7 @@ class AccountCreationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // After the user types, the error message shown to them will be reset
         binding.usernameField.editText?.doAfterTextChanged {
             binding.usernameField.error = null
         }
@@ -58,8 +59,13 @@ class AccountCreationFragment : Fragment() {
             val password = binding.passwordField.editText?.text.toString()
             val passwordRetry = binding.passwordRetryField.editText?.text.toString()
             lifecycleScope.launch {
+                // Tests if the user's entered credentials are valid to be inserted
                 val result = viewmodel.validate(username, password, passwordRetry)
                 when (result.isSuccess) {
+                    /**
+                     * If the credentials are valid, the user's details are inserted into the
+                     * User table, and the user is automatically logged in.
+                     */
                     true -> {
                         val allowBiometrics = binding.biometricSwitch.isChecked
                         val user = viewmodel.createUser(username, password, allowBiometrics)
@@ -67,6 +73,10 @@ class AccountCreationFragment : Fragment() {
                             .actionAccountCreationFragmentToUserMainFragment2(user.id)
                         findNavController().navigate(action)
                     }
+                    /**
+                     * If the credentials are invalid, the appropriate error messages are shown to
+                     * the user.
+                     */
                     false -> {
                         if (checkFlag(result.reason, USERNAME_TAKEN)) {
                             binding.usernameField.error = "Username is taken"

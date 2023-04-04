@@ -1,6 +1,8 @@
 package com.app.receiptscanner.adapters
 
 import android.content.Context
+import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
@@ -10,7 +12,8 @@ import com.app.receiptscanner.storage.NormalizedReceipt
 
 class ReceiptAdapter(
     private val context: Context,
-    private val receipt: NormalizedReceipt
+    private val receipt: NormalizedReceipt,
+    private val onTextChanged: (ArrayList<String>, Editable?) -> Unit
 ) : RecyclerView.Adapter<ReceiptAdapter.ViewHolder>() {
     inner class ViewHolder(val binding: ReceiptFieldBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -26,7 +29,8 @@ class ReceiptAdapter(
         holder.binding.fieldInput.editText?.let {
             it.setText(field.data.firstOrNull() ?: "")
             it.doAfterTextChanged { content ->
-                receipt.fields.set(key, arrayListOf(content.toString()))
+                Log.e("Receipt Fields ID", receipt.fields.hashCode().toString())
+                onTextChanged.invoke(key, content)
             }
         }
     }

@@ -33,6 +33,8 @@ class ReceiptLibraryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentReceiptLibraryBinding.inflate(inflater, container, false)
+        // memory
+        // Once the screen has been created, the user's receipts are loaded from the database into
         viewmodel.loadUserReceipts()
         return binding.root
     }
@@ -42,6 +44,7 @@ class ReceiptLibraryFragment : Fragment() {
         val adapter = LibraryAdapter(activity, listOf())
         binding.libraryRecyclerView.adapter = adapter
         binding.libraryRecyclerView.layoutManager = LinearLayoutManager(activity)
+        // Once the receipts have been loaded, they are shown to the user in the form of a list
         viewmodel.userReceipts.observe(viewLifecycleOwner) {
             Log.e("Observer", "CALLED!")
             viewmodel.loadReceiptData {

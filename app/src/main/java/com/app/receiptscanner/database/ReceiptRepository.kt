@@ -21,6 +21,17 @@ class ReceiptRepository(
         return@withContext groupEntryDao.getGroupEntries(id)
     }
 
+    suspend fun getUserReceiptsByDate(id: Int, startDate: Date, endDate: Date) = withContext(dispatcher) {
+        val start = startDate.time
+        val end = endDate.time
+
+        assert(start < end) {
+            "Start date must precede end date"
+        }
+
+        return@withContext userReceiptDao.getUserReceiptByDate(id, start, end)
+    }
+
     suspend fun insertReceipt(receipt: Receipt) = withContext(dispatcher) {
         return@withContext receiptDao.insertReceipt(receipt)
     }

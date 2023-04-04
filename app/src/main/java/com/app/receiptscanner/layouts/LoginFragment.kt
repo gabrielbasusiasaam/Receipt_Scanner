@@ -42,6 +42,7 @@ class LoginFragment : Fragment() {
         }.attach()
         binding.tabLayout.tabGravity = TabLayout.GRAVITY_FILL
 
+        // When a button is pressed, the user is sent to the respective screen to authenticate
         binding.createAccountButton.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_accountCreationFragment)
         }
@@ -66,6 +67,7 @@ class LoginFragment : Fragment() {
 
     }
 
+    // Each of the following three fragments are a single page on the slides for the login screen
     class PageFragment1 : Fragment() {
         private var _binding: FragmentLoginPage1Binding? = null
         private val binding get() = _binding!!

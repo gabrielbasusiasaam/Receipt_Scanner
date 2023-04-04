@@ -10,6 +10,7 @@ import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BELOW
 import com.app.receiptscanner.storage.NormalizedReceipt
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.Text.Element
+import java.util.*
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -227,7 +228,8 @@ class Parser(private val fields: List<TokenField>) {
             }
             template.set(it.content, data)
         }
-        val currentDate = System.currentTimeMillis()
+        val calendar = Calendar.getInstance()
+        val currentDate = calendar.timeInMillis
         return NormalizedReceipt("", currentDate, "", type, template)
     }
 

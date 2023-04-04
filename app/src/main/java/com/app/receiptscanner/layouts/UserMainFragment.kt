@@ -1,9 +1,8 @@
 package com.app.receiptscanner.layouts
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
@@ -33,6 +32,7 @@ class UserMainFragment : Fragment() {
             application
         )
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,6 +53,7 @@ class UserMainFragment : Fragment() {
         )
         val adapter = ViewPagerAdapter(childFragmentManager, lifecycle)
 
+        activity.setSupportActionBar(binding.userMainToolbar)
         binding.userViewPager.adapter = adapter
         binding.userViewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -71,6 +72,23 @@ class UserMainFragment : Fragment() {
         binding.floatingActionButton.setOnClickListener {
             findNavController().navigate(R.id.action_userMainFragment_to_receiptCreationFragment)
         }
+
+        //Menu
+        activity.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.library_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.calculateStatistics -> {
+                        findNavController().navigate(R.id.action_userMainFragment_to_statisticsPromptFragment)
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }
 

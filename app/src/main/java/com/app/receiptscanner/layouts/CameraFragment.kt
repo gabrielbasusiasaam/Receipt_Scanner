@@ -64,13 +64,25 @@ class CameraFragment : Fragment() {
                 if (!it) findNavController().popBackStack()
             }
 
+        // Flag signifying if the user already allows the app to use the camera
         val isPermitted = ContextCompat.checkSelfPermission(
             activity,
             Manifest.permission.CAMERA,
         )
+
+        /**
+         * If the camera is not already allowed, the app requests the user for permission,
+         * returning to the previous screen if this permission is denied
+         */
         if (isPermitted != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
+
+        /**
+         * If a picture is already being processed, the app shows the user a popup telling them to
+         * wait, otherwise a picture is taken. This is to avoid multiple calls to the parser at once,
+         * which would have undefined behaviour
+         */
         binding.captureButton.setOnClickListener {
             if (!cameraLocked) {
                 takePicture()
@@ -85,6 +97,10 @@ class CameraFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * When the fragment is visable to the user again, the camera is started and
+     * the screen is put back in fullscreen mode
+     */
     override fun onResume() {
         super.onResume()
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -114,6 +130,7 @@ class CameraFragment : Fragment() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
+            // Sets up the Surface View to show the user what their camera sees
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.surfaceView.surfaceProvider)
             }
@@ -135,6 +152,7 @@ class CameraFragment : Fragment() {
 
     @SuppressLint("UnsafeOptInUsageError")
     private fun takePicture() {
+        // Makes sure that the camera is set up to allow for a picture to be taken,
         val imageCapture = imageCapture ?: return
         val callback = object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {

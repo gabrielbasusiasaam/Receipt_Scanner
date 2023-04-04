@@ -12,6 +12,9 @@ interface UserReceiptDao {
     @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE isGlobal = 1")
     fun getGlobalReceipts(): List<Receipt>
 
+    @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE UserReceipt.userId = :id AND Receipt.dateCreated BETWEEN :startDate AND :endDate")
+    fun getUserReceiptByDate(id: Int, startDate: Long, endDate: Long): List<Receipt>
+
     @Insert
     fun insertUserReceipt(userReceipt: UserReceipt)
 }
