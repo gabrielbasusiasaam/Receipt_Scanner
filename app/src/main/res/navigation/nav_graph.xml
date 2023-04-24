@@ -73,6 +73,12 @@
         <action
             android:id="@+id/action_userMainFragment_to_statisticsPromptFragment"
             app:destination="@id/statisticsPromptFragment" />
+        <action
+            android:id="@+id/action_userMainFragment_to_statisticsResultFragment"
+            app:destination="@id/statisticsResultFragment" />
+        <action
+            android:id="@+id/action_userMainFragment_to_receiptGroupCreationFragment"
+            app:destination="@id/receiptGroupCreationFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
@@ -108,14 +114,35 @@
         android:id="@+id/statisticsPromptFragment"
         android:name="com.app.receiptscanner.layouts.StatisticsPromptFragment"
         android:label="StatisticsPromptFragment"
-        tools:layout="@layout/fragment_statistics_prompt" >
+        tools:layout="@layout/fragment_statistics_prompt">
         <action
             android:id="@+id/action_statisticsPromptFragment_to_statisticsResultFragment"
             app:destination="@id/statisticsResultFragment" />
     </fragment>
     <fragment
         android:id="@+id/statisticsResultFragment"
-        tools:layout="@layout/fragment_statistics_result"
         android:name="com.app.receiptscanner.layouts.StatisticsResultFragment"
-        android:label="StatisticsResultFragment" />
+        android:label="StatisticsResultFragment"
+        tools:layout="@layout/fragment_statistics_result">
+        <action
+            android:id="@+id/action_statisticsResultFragment_to_fragmentCostTimeGraph"
+            app:destination="@id/fragmentCostTimeGraph" />
+        <action
+            android:id="@+id/action_statisticsResultFragment_to_providerDistributionFragment"
+            app:destination="@id/providerDistributionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentCostTimeGraph"
+        android:name="com.app.receiptscanner.layouts.CostTimeGraphFragment"
+        android:label="FragmentCostTimeGraph"
+        tools:layout="@layout/fragment_cost_time" />
+    <fragment
+        android:id="@+id/providerDistributionFragment"
+        android:name="com.app.receiptscanner.layouts.ProviderDistributionFragment"
+        android:label="ProviderDistributionFragment"
+        tools:layout="@layout/fragment_provider_distribution" />
+    <fragment
+        android:id="@+id/receiptGroupCreationFragment"
+        android:name="com.app.receiptscanner.layouts.ReceiptGroupCreationFragment"
+        android:label="ReceiptGroupCreationFragment" />
 </navigation>

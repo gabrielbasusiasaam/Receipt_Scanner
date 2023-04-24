@@ -18,29 +18,33 @@ object FieldTemplate {
     const val LIDL_ID = 2
     const val SAINSBURYS_ID = 3
     const val WAITROSE_ID = 4
+    const val CHECK_AFTER = 1 shl 0
+    const val CHECK_BEFORE = 1 shl 1
+    const val CHECK_ABOVE = 1 shl 2
+    const val CHECK_BELOW = 1 shl 3
 
     private val MARKS_AND_SPENCERS_FIELDS = FieldMap
         .Builder()
-        .put(arrayListOf("Cost"), FIELD_ITEM, "Cost", true)
-        .put(arrayListOf("Items"), FIELD_ITEM, "Items")
+        .put(arrayListOf("COST"), FIELD_ITEM, "Cost", 1, CHECK_AFTER, true)
+        .put(arrayListOf("ITEMS"), FIELD_LIST, "Items", -1, CHECK_AFTER)
         .build()
 
     private val MORRISONS_FIELDS = FieldMap
         .Builder()
-        .put(arrayListOf("Description"), FIELD_LIST, "Items")
-        .put(arrayListOf("Balance", "Due"), FIELD_ITEM, "Cost", true)
+        .put(arrayListOf("DESCRIPTION"), FIELD_LIST, "Items", 1, CHECK_AFTER)
+        .put(arrayListOf("BALANCE", "DUE"), FIELD_ITEM, "Cost", 1, CHECK_AFTER, true)
         .build()
 
 
     private val WAITROSE_FIELDS = FieldMap
         .Builder()
-        .put(arrayListOf("Balance", "Due"), FIELD_ITEM, "Cost", true)
+        .put(arrayListOf("BALANCE", "DUE"), FIELD_ITEM, "Cost", 1, CHECK_AFTER, true)
         .build()
 
 
     private val LIDL_FIELDS = FieldMap
         .Builder()
-        .put(arrayListOf("Total"), FIELD_ITEM, "Total", true)
+        .put(arrayListOf("TOTAL"), FIELD_ITEM, "Total", 1, CHECK_AFTER, true)
         .build()
 
 

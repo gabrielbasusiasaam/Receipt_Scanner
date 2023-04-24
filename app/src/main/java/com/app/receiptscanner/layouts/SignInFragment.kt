@@ -105,6 +105,7 @@ class SignInFragment : Fragment() {
             else -> {}
         }
 
+        // Configures the prompt that the user will be shown. Only supports fingerprints for now
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Account login")
             .setDescription("Log in using your device credentials")
@@ -148,9 +149,11 @@ class SignInFragment : Fragment() {
                     }
                     else -> {
                         user = viewmodel.getUser(username)
+
                         // If the following line were to throw a null pointer exception, it would
                         // suggest that there is an issue with the database as it was unable to
-                        // fetch a user that exists
+                        // fetch a user that exists, meaning that the app restarting is a better
+                        // solution than attempting to handle it
                         if (!user!!.allowsBiometrics) {
                             Toast.makeText(
                                 activity,

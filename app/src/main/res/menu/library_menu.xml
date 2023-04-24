@@ -2,5 +2,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:title="@string/calculate_statistics" android:id="@+id/calculateStatistics" app:showAsAction="never"/>
+    <group android:id="@+id/defaultMenu">
+        <item
+            android:id="@+id/calculateStatistics"
+            android:title="@string/calculate_statistics"
+            app:showAsAction="never" />
+    </group>
+    <group android:id="@+id/selectedMenu">
+        <item
+            android:id="@+id/receiptStatistics"
+            android:title="@string/selected_statistics"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/receiptDeletion"
+            android:title="@string/delete_selected"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/addToGroup"
+            android:title="@string/selected_group"
+            app:showAsAction="never" />
+    </group>
 </menu>

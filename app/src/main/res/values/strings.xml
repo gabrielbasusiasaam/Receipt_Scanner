@@ -17,11 +17,15 @@
     <string name="enable_dark_mode">When enabled the app will use a dark interface.</string>
     <string name="login_page_2">When scanning a receipt, line the edges up with the visual indicator to get the best results!</string>
 
+    <!-- Library -->
+    <string name="cost_field">£%1$s</string>
+
     <!-- Receipt Creation -->
     <string name="create_with_camera">Create using camera</string>
     <string name="create_manually">Create Manually</string>
-    <string name="create_receipt_button">Create Receipt</string>
+    <string name="create_receipt_button">Save Receipt</string>
     <string name="receipt_name_hint">Title</string>
+    <string name="add_item">Items</string>
 
     <!-- Statistics calculation -->
     <string name="calculate_button">Calculate</string>
@@ -33,4 +37,13 @@
     <!-- Statistics results -->
     <string name="view_dist">View Provider cost distribution</string>
     <string name="view_graph">View cost over time graph</string>
+    <string name="result_title">Calculation Results</string>
+    <string name="result_format">%1$s: %2$s</string>
+    <string name="selected_statistics">Calculate statistics for selected</string>
+    <string name="delete_selected">Delete selected</string>
+    <string name="selected_group">Add selected to group</string>
+
+    <!-- Receipt Groups -->
+    <string name="create_receipt_group">Create Group</string>
+    <string name="add_receipt">Add Receipts</string>
 </resources>

@@ -1,8 +1,9 @@
 package com.app.receiptscanner.layouts
 
 import android.os.Bundle
-import android.view.*
-import androidx.core.view.MenuProvider
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
@@ -52,13 +53,14 @@ class UserMainFragment : Fragment() {
             R.drawable.ic_baseline_settings_24
         )
         val adapter = ViewPagerAdapter(childFragmentManager, lifecycle)
-
+        var page = 0
         activity.setSupportActionBar(binding.userMainToolbar)
         binding.userViewPager.adapter = adapter
         binding.userViewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 binding.userMainToolbar.title = names[position]
+                page = position
                 if (position < 2) binding.floatingActionButton.show()
                 else binding.floatingActionButton.hide()
             }
@@ -70,25 +72,12 @@ class UserMainFragment : Fragment() {
         binding.userTabs.tabGravity = TabLayout.GRAVITY_FILL
 
         binding.floatingActionButton.setOnClickListener {
-            findNavController().navigate(R.id.action_userMainFragment_to_receiptCreationFragment)
+            when (page) {
+                0 -> findNavController().navigate(R.id.action_userMainFragment_to_receiptCreationFragment)
+                1 -> findNavController().navigate(R.id.action_userMainFragment_to_receiptGroupCreationFragment)
+            }
+
         }
-
-        //Menu
-        activity.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.library_menu, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.calculateStatistics -> {
-                        findNavController().navigate(R.id.action_userMainFragment_to_statisticsPromptFragment)
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }
 

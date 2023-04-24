@@ -9,6 +9,9 @@ interface UserReceiptDao {
     @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE UserReceipt.userId = :id")
     fun getReceiptsByUser(id: Int): List<Receipt>
 
+    @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE UserReceipt.userId = :userId and Receipt.id in (:receiptIds)")
+    fun getReceiptsByUser(userId: Int, receiptIds: List<Int>): List<Receipt>
+
     @Query("SELECT * FROM Receipt INNER JOIN UserReceipt ON Receipt.id = UserReceipt.receiptId WHERE isGlobal = 1")
     fun getGlobalReceipts(): List<Receipt>
 

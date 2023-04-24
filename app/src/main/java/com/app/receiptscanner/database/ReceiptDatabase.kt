@@ -22,6 +22,8 @@ abstract class ReceiptDatabase : RoomDatabase() {
 
         /**
          * Returns a singleton instance of the receipt database
+         *
+         * @param context The context from which the database is accessed from
          */
         fun getDatabase(context: Context) = INSTANCE ?: synchronized(this) {
             val instance =

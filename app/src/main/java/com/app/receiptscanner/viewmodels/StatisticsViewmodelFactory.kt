@@ -12,7 +12,7 @@ class StatisticsViewmodelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(StatisticsViewmodel::class.java)) {
-            return StatisticsViewmodel(receiptRepository, application) as T
+            return StatisticsViewmodel(application) as T
         }
         throw IllegalArgumentException("Unknown Viewmodel class")
     }

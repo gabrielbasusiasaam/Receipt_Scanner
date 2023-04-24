@@ -12,7 +12,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.app.receiptscanner.R
 import com.app.receiptscanner.databinding.FragmentStatisticsPromptBinding
-import com.app.receiptscanner.viewmodels.*
+import com.app.receiptscanner.viewmodels.ReceiptApplication
+import com.app.receiptscanner.viewmodels.ReceiptViewmodel
+import com.app.receiptscanner.viewmodels.ReceiptViewmodelFactory
+import com.app.receiptscanner.viewmodels.StatisticsViewmodel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,12 +33,7 @@ class StatisticsPromptFragment : Fragment() {
             application
         )
     }
-    private val statisticsViewmodel: StatisticsViewmodel by activityViewModels {
-        StatisticsViewmodelFactory(
-            application.receiptRepository,
-            application
-        )
-    }
+    private val statisticsViewmodel: StatisticsViewmodel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

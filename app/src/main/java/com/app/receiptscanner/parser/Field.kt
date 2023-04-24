@@ -1,3 +1,10 @@
 package com.app.receiptscanner.parser
 
-data class Field(val order: Int, val type: Int, val alias: String, var data: ArrayList<String>)
+data class Field(
+    var data: ArrayList<String>,
+    val alias: String,
+    val type: Int,
+    val dataCount: Int,
+    val direction: Int,
+    val order: Int,
+)

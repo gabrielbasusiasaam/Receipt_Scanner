@@ -11,15 +11,22 @@
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/ic_baseline_dark_mode_24.xml" value="0.1935" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/ic_baseline_receipt_96.xml" value="0.18" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1935" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/ms_background.xml" value="0.1" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/ms_logo_background.xml" value="0.3435" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/phone_guide_background.xml" value="0.1" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/receipt_box.xml" value="0.2085" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/receipt_card.xml" value="0.1925" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/drawable/sainsbury_logo_background.xml" value="0.1" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/activity_main.xml" value="0.14722222222222223" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_account_creation.xml" value="0.22" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_camera.xml" value="0.18541666666666667" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_cost_time.xml" value="0.184375" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_group_creation.xml" value="0.33" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_login.xml" value="0.25" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_login_page1.xml" value="0.1762917933130699" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_login_page2.xml" value="0.25" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_login_page3.xml" value="0.1" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_provider_distribution.xml" value="0.184375" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_receipt.xml" value="0.33" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_receipt_creation.xml" value="0.22" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/fragment_receipt_group.xml" value="0.184375" />
@@ -31,6 +38,9 @@
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/list_item.xml" value="0.3625" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/receipt_card.xml" value="0.3614583333333333" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/receipt_field.xml" value="0.33" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/receipt_item.xml" value="0.17708333333333334" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/receipt_item_list.xml" value="0.5" />
+        <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/layout/statistics_item.xml" value="0.33" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/menu/library_menu.xml" value="0.3614583333333333" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/mipmap-anydpi-v26/M&amp;S_logo.xml" value="0.3435" />
         <entry key="..\:/Users/gabri/AndroidStudioProjects/ReceiptScanner/app/src/main/res/mipmap-anydpi-v26/morrisons_logo_round.xml" value="0.1935" />
@@ -48,7 +58,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.3614583333333333" />
+        <option name="scale" value="0.33" />
       </ProjectState>
     </option>
   </component>

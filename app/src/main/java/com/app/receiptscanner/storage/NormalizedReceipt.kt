@@ -7,6 +7,7 @@ import com.app.receiptscanner.parser.FieldMap
  * the fields specific to the specific type of receipt.
  */
 data class NormalizedReceipt(
+    var id: Int,
     var name: String,
     var dateCreated: Long,
     var photoPath: String?,

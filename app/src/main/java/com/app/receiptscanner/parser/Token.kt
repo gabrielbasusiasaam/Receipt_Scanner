@@ -7,7 +7,8 @@ data class Token(
     val content: ArrayList<String>,
     val lineNumber: Int,
     val boundingBox: Rect,
-    val relation: TokenField? = null
+    val field: Field? = null,
+    val regex: List<String>? = null
 ) {
     companion object {
         const val TYPE_FIELD = 0

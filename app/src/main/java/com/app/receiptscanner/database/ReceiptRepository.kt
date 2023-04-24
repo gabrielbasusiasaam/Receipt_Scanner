@@ -17,6 +17,10 @@ class ReceiptRepository(
         return@withContext userReceiptDao.getReceiptsByUser(id)
     }
 
+    suspend fun getUserReceipts(userId: Int, receiptIds: List<Int>) = withContext(dispatcher) {
+        return@withContext userReceiptDao.getReceiptsByUser(userId, receiptIds)
+    }
+
     suspend fun getGroupReceipts(id: Int) = withContext(dispatcher) {
         return@withContext groupEntryDao.getGroupEntries(id)
     }
@@ -47,6 +51,10 @@ class ReceiptRepository(
         val groupId = receiptGroupDao.insertReceiptGroup(group)
         val groupEntries = receipts.map { GroupEntry(groupId.toInt(), it.id) }
         groupEntryDao.insertGroupEntries(groupEntries)
+    }
+
+    suspend fun updateReceipt(finalRecord: Receipt) = withContext(dispatcher) {
+        receiptDao.updateReceipt(finalRecord)
     }
 
 }

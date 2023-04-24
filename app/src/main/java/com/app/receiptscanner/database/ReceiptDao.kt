@@ -1,9 +1,6 @@
 package com.app.receiptscanner.database
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface ReceiptDao {
@@ -18,4 +15,7 @@ interface ReceiptDao {
 
     @Delete
     fun deleteReceipt(receipt: Receipt)
+
+    @Update
+    fun updateReceipt(receipt: Receipt)
 }

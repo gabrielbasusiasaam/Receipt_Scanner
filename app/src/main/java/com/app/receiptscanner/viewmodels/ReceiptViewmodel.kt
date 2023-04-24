@@ -33,6 +33,10 @@ class ReceiptViewmodel(
         _userReceipts.postValue(receipts)
     }
 
+    fun updateData(receipt: NormalizedReceipt) {
+        receiptCache[receipt.id] = receipt.copy()
+    }
+
     fun loadReceiptData(endAction: (receipts: List<NormalizedReceipt>) -> Unit) =
         viewModelScope.launch {
             val context: ReceiptApplication = getApplication()
@@ -46,10 +50,17 @@ class ReceiptViewmodel(
             endAction.invoke(normalizedReceipts)
         }
 
+    fun loadReceiptsById(ids: List<Int>, endAction: (receipts: List<Receipt>) -> Unit) =
+        viewModelScope.launch {
+            val receipts = receiptRepository.getUserReceipts(userId, ids)
+            endAction.invoke(receipts)
+        }
+
     fun createReceipt(
         receipt: NormalizedReceipt,
         storageDirectory: String,
         parserId: String,
+        isUpdate: Boolean,
         endAction: () -> Unit
     ) = viewModelScope.launch {
         val record = Receipt(
@@ -57,15 +68,22 @@ class ReceiptViewmodel(
             parserId = parserId,
             photoPath = receipt.photoPath
         )
-        val id = receiptRepository.insertReceipt(record).toInt()
-        receiptRepository.insertUserReceipt(id, userId, false)
+        var id: Int = receipt.id
+        if(isUpdate) {
+            id = receiptRepository.insertReceipt(record).toInt()
+            receiptRepository.insertUserReceipt(id, userId, false)
+        }
         val finalRecord = Receipt(
             id = id,
             parserId = parserId,
             dateCreated = receipt.dateCreated,
             photoPath = receipt.photoPath
         )
+        if(isUpdate) {
+            receiptRepository.updateReceipt(finalRecord)
+        }
         val storageHandler = StorageHandler(getApplication())
+        Log.i("RECEIPT", receipt.fields.toString())
         storageHandler.storeReceipt(finalRecord, receipt, storageDirectory)
         endAction.invoke()
     }
@@ -86,8 +104,8 @@ class ReceiptViewmodel(
         normalizedReceipt = null
     }
 
-    fun setField(key: ArrayList<String>, value: ArrayList<String>) {
-        normalizedReceipt?.fields?.set(key, value)
+    fun setField(key: List<String>, value: ArrayList<String>) {
+        normalizedReceipt?.fields?.setField(key, value)
     }
 
     fun getReceiptsByDate(

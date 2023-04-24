@@ -2,4 +2,5 @@
 <resources>
     <color name="card_color">#151515</color>
     <color name="library_color">#323232</color>
+    <color name="activated_card_color">@color/purple_700</color>
 </resources>

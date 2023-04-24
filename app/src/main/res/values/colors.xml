@@ -10,6 +10,7 @@
 
     <color name="tab_light_color">#DDDDEE</color>
     <color name="card_color">#F2F2F2</color>
+    <color name="activated_card_color">@color/teal_700</color>
     <color name="library_color">#DDDDDD</color>
 
 </resources>

@@ -1,12 +1,11 @@
 package com.app.receiptscanner.parser
 
-import android.util.Log
+import com.app.receiptscanner.parser.FieldTemplate.CHECK_ABOVE
+import com.app.receiptscanner.parser.FieldTemplate.CHECK_AFTER
+import com.app.receiptscanner.parser.FieldTemplate.CHECK_BEFORE
+import com.app.receiptscanner.parser.FieldTemplate.CHECK_BELOW
 import com.app.receiptscanner.parser.Token.Companion.TYPE_DATA
 import com.app.receiptscanner.parser.Token.Companion.TYPE_FIELD
-import com.app.receiptscanner.parser.TokenField.Companion.CHECK_ABOVE
-import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
-import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BEFORE
-import com.app.receiptscanner.parser.TokenField.Companion.CHECK_BELOW
 import com.app.receiptscanner.storage.NormalizedReceipt
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.Text.Element
@@ -16,34 +15,34 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
 
-class Parser(private val fields: List<TokenField>) {
+class Parser(private val fieldMap: FieldMap) {
+
     /**
      * Creates an Abstract Syntax Tree of depth 2 from the tokenRelationships generated from the generateRelations
-     * The childnodes of the root are the fields for the receipt, whilst the childnodes of a field is the data
+     * The child nodes of the root are the fields for the receipt, whilst the childnodes of a field is the data
      * associated with said field
      *
      * @param relations a list of TokenRelationships from the generateRelations method
      * @return the root Node of the syntax tree.
      **/
     fun createSyntaxTree(relations: List<TokenRelationship>): Node {
-        val fields = relations.filter { it.token.type == TYPE_FIELD }
+        val fieldTokens = relations.filter { it.token.type == TYPE_FIELD }
         val root = Node(arrayListOf(), null, arrayListOf(), false)
-        /**
-         * For each field the tokens above are stored as child nodes until it either
-         * has no tokens in the specified direction, runs into another field or all
-         * the data necessary for the field has been acquired
-         **/
-        fields.forEach { field ->
-            //stops evaluating this field if there is no associated TokenField
-            val relationship = field.token.relation ?: return@forEach
 
-            var dataCount = relationship.dataCount
-            var currentRelation: TokenRelationship? = field
-            val decrementCount = relationship.dataCount != -1
+        // For each field the tokens above are stored as child nodes until it either
+        // has no tokens in the specified direction, runs into another field or all
+        // the data necessary for the field has been acquired
+        fieldTokens.forEach { token ->
+            //stops evaluating this field if there is no associated TokenField
+            val field = token.token.field ?: return@forEach
+
+            var dataCount = field.dataCount
+            var currentRelation: TokenRelationship? = token
+            val decrementCount = field.dataCount != -1
             if (!decrementCount) dataCount = 1
-            val node = Node(field.token.content, root, arrayListOf(), false)
+            val node = Node(token.token.content, root, arrayListOf(), false, token.token.regex)
             while (currentRelation != null) {
-                when (relationship.flag) {
+                when (field.direction) {
                     CHECK_ABOVE -> currentRelation = currentRelation.above
                     CHECK_BELOW -> currentRelation = currentRelation.below
                     CHECK_AFTER -> currentRelation = currentRelation.right
@@ -81,20 +80,19 @@ class Parser(private val fields: List<TokenField>) {
             }
         }
         //Exits early if the OCR found no text
-        if(elements.isEmpty()) return tokens
+        if (elements.isEmpty()) return tokens
         elements.sortBy { it.boundingBox?.centerY() }
         var pivot: Element = elements[0]
         val elementArray = arrayListOf<Pair<Element, Int>>()
         var currentLine = 0
         elementArray.add(Pair(elements[0], 0))
         val lower = cos((PI / 180.0f) * MAX_ANGLE)
-        /**
-         * - Line construction section -
-         *  Iterates through the elements and compares the angle between the pivot element and the
-         *  current element with the maximum angle allowed for a line. If the angle is lower than
-         *  the maximum angle the element is added to the current line, otherwise it becomes the
-         *  pivot and starts a new line
-         */
+
+        // - Line construction section -
+        //  Iterates through the elements and compares the angle between the pivot element and the
+        // current element with the maximum angle allowed for a line. If the angle is lower than
+        // the maximum error the element is added to the current line, otherwise it becomes the
+        // pivot and starts a new line
         for (i in 1 until elements.size) {
             val dx = (elements[i].boundingBox!!.centerX() - pivot.boundingBox!!.centerX()).toFloat()
             val dy = (elements[i].boundingBox!!.centerY() - pivot.boundingBox!!.centerY()).toFloat()
@@ -108,9 +106,11 @@ class Parser(private val fields: List<TokenField>) {
             }
             elementArray.add(Pair(elements[i], currentLine))
         }
+        // Sorts the elements by their x position, so that they can be evaluated in reading order
         val comparator =
             compareBy<Pair<Element, Int>> { it.second }.thenBy { it.first.boundingBox?.centerX() }
         elementArray.sortWith(comparator)
+
         elementArray.forEach { pair ->
             val element = pair.first
             val number = pair.second
@@ -118,8 +118,9 @@ class Parser(private val fields: List<TokenField>) {
                 element.text.uppercase().split(*delimiters).filter { it.isNotEmpty() }
             var index = 0
             while (index < elementSplit.size) {
+                var regex = Regex(elementSplit[index])
                 val matches =
-                    fields.filter { it.content.first().matches(elementSplit[index]) }
+                    fieldMap.filter { it.key.first().matches(regex) }.toList()
                 if (matches.isEmpty()) {
                     val token = Token(
                         TYPE_DATA,
@@ -134,14 +135,15 @@ class Parser(private val fields: List<TokenField>) {
                     val contentArray = arrayListOf<String>()
                     var matchIndex = 0
                     while (matchIndex < matches.size) {
-                        if (initialIndex + matches[matchIndex].content.size > elementSplit.size) {
+                        if (initialIndex + matches[matchIndex].first.size > elementSplit.size) {
                             matchIndex++
                             continue
                         }
                         found = true
                         contentArray.clear()
-                        for (i in matches[matchIndex].content.indices) {
-                            if (matches[matchIndex].content[i].matches(elementSplit[initialIndex + i])) {
+                        for (i in matches[matchIndex].first.indices) {
+                            regex = Regex(elementSplit[initialIndex + i])
+                            if (matches[matchIndex].first[i].matches(regex)) {
                                 contentArray.add(elementSplit[initialIndex + i])
                             } else {
                                 found = false
@@ -156,16 +158,17 @@ class Parser(private val fields: List<TokenField>) {
                             contentArray,
                             number,
                             element.boundingBox!!,
-                            matches[matchIndex]
+                            matches[matchIndex].second,
+                            matches[matchIndex].first
                         )
                         tokens.add(token)
-                        index = initialIndex + matches[matchIndex].content.size
+                        index = initialIndex + matches[matchIndex].first.size
                     }
                 }
                 index++
             }
         }
-        Log.e("TOKENS", elementArray.toString() )
+
         return tokens
     }
 
@@ -216,9 +219,9 @@ class Parser(private val fields: List<TokenField>) {
         return relationships
     }
 
-    fun createReceipt(root: Node, type: Int) : NormalizedReceipt? {
+    fun createReceipt(root: Node, type: Int): NormalizedReceipt? {
         val nodeFields = root.childNodes
-        if(root.childNodes.isEmpty()) return null
+        if (nodeFields.isEmpty()) return null
 
         val template = FieldTemplate.getFieldsById(type)
         nodeFields.forEach {
@@ -226,11 +229,11 @@ class Parser(private val fields: List<TokenField>) {
             it.childNodes.forEach { node ->
                 data.addAll(node.content)
             }
-            template.set(it.content, data)
+            it.regex?.let { regex -> template.setField(regex, data) }
         }
         val calendar = Calendar.getInstance()
         val currentDate = calendar.timeInMillis
-        return NormalizedReceipt("", currentDate, "", type, template)
+        return NormalizedReceipt(-1, "", currentDate, "", type, template)
     }
 
     companion object {

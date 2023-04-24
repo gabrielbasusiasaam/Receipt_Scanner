@@ -13,6 +13,8 @@ object SecurityUtil {
         val random = SecureRandom.getInstance("SHA1PRNG")
         val bytes = ByteArray(256)
         random.nextBytes(bytes)
+
+        // Formats the bytes as a hexadecimal string
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
@@ -43,7 +45,7 @@ object SecurityUtil {
         return inputFlag and testFlag == testFlag
     }
 
-
+    // A set of flags specifying the specific issues with the user's input
     const val VALID = 0
     const val PASSWORD_TOO_SHORT = 1 shl 0
     const val PASSWORD_INCORRECT =  1 shl 1
@@ -52,5 +54,4 @@ object SecurityUtil {
     const val USERNAME_DOES_NOT_EXIST = 1 shl 4
     const val USERNAME_EMPTY = 1 shl 5
     const val ILLEGAL_CHARACTER = 1 shl 6
-
 }

@@ -78,6 +78,7 @@ class ReceiptCreationFragment : Fragment() {
             findNavController().navigate(R.id.action_receiptCreationFragment_to_receiptFragment)
         }
 
+        // Otherwise they are sent to a screen which allows them to take a photo
         binding.createFromCameraButton.setOnClickListener {
             val text = binding.receiptProviderSelection.editText?.text ?: return@setOnClickListener
             val index = items.indexOf(text.toString()).coerceAtMost(logos.lastIndex)
@@ -91,16 +92,28 @@ class ReceiptCreationFragment : Fragment() {
         binding.cardView.post {
             val startHeight = binding.cardView.height.toFloat()
             val endHeight = startHeight * 0.5f
+
+            // These control whether the animation is already playing, and therefore the user
+            // pressing the card should be ignored, and which animation to play respectively
             var isAnimating = false
             var isExpanded = false
+
             val expansionAnimation =
                 ObjectAnimator.ofFloat(binding.cardView, HeightProperty(), startHeight, endHeight)
             val shrinkAnimation =
                 ObjectAnimator.ofFloat(binding.cardView, HeightProperty(), endHeight, startHeight)
+
+            // The following have an issue in their duration. For some devices the animation
+            // takes the set duration, whereas for others it takes half as long.
+            // Unsure how to fix this
             val expansionAnimatorSet = AnimatorSet().apply {
                 play(expansionAnimation)
                 duration = animationDuration
                 interpolator = AccelerateDecelerateInterpolator()
+
+                // At the start of the animation we change the scale type as otherwise the final
+                // image won't match up with the size of the view
+                // This unintentionally creates a little inflation animation, which is unavoidable
                 doOnStart {
                     binding.imageView2.scaleType = ImageView.ScaleType.CENTER_CROP
                 }
@@ -112,6 +125,8 @@ class ReceiptCreationFragment : Fragment() {
                 play(shrinkAnimation)
                 duration = animationDuration
                 interpolator = AccelerateDecelerateInterpolator()
+
+                // Once it has finished animating the scale type is changed. This centers the logo
                 doOnEnd {
                     binding.imageView2.scaleType = ImageView.ScaleType.FIT_XY
                     isAnimating = false
@@ -144,7 +159,7 @@ class ReceiptCreationFragment : Fragment() {
         // Come back and replace WAITROSE_ID with SAINSBURYS_ID
         val ids = arrayOf(MARKS_AND_SPENCERS_ID, LIDL_ID, MORRISONS_ID, WAITROSE_ID)
         val fields = getFieldsById(ids[index])
-        val template = NormalizedReceipt("", -1, "", ids[index], fields)
+        val template = NormalizedReceipt(-1, "", -1, "", ids[index], fields)
         receiptViewmodel.setNormalizedReceipt(template)
     }
 }

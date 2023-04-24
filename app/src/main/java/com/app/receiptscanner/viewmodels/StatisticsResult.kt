@@ -1,24 +1,25 @@
 package com.app.receiptscanner.viewmodels
 
 import com.app.receiptscanner.storage.NormalizedReceipt
+import java.math.BigDecimal
 
 data class StatisticsResult(
     // Data
-    val data: List<Pair<NormalizedReceipt, Float>>,
-    val providerDistribution: HashMap<Int, Float>,
+    val data: List<Pair<NormalizedReceipt, BigDecimal>>,
+    val providerDistribution: HashMap<Int, BigDecimal>,
     val count: Int,
-    val sum: Float,
-    val max: Float,
-    val min: Float,
+    val sum: BigDecimal,
+    val max: BigDecimal,
+    val min: BigDecimal,
 
     // Averages
-    val mean: Float,
-    val mode: Float,
-    val median: Float,
+    val mean: BigDecimal,
+    val mode: BigDecimal,
+    val median: BigDecimal,
 
     // Measures of spread
-    val lowerQuartile: Float,
-    val upperQuartile: Float,
-    val standardDeviation: Float,
-    val variance: Float
+    val lowerQuartile: BigDecimal,
+    val upperQuartile: BigDecimal,
+    val standardDeviation: BigDecimal,
+    val variance: BigDecimal
 )

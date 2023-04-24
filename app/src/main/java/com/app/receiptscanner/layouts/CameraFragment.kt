@@ -26,10 +26,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.app.receiptscanner.R
 import com.app.receiptscanner.databinding.FragmentCameraBinding
-import com.app.receiptscanner.parser.FieldTemplate.MARKS_AND_SPENCERS_ID
+import com.app.receiptscanner.parser.FieldTemplate
 import com.app.receiptscanner.parser.Parser
-import com.app.receiptscanner.parser.TokenField.Companion.CHECK_AFTER
-import com.app.receiptscanner.parser.TokenField.TokenFieldBuilder
 import com.app.receiptscanner.viewmodels.ReceiptApplication
 import com.app.receiptscanner.viewmodels.ReceiptViewmodel
 import com.app.receiptscanner.viewmodels.ReceiptViewmodelFactory
@@ -64,25 +62,21 @@ class CameraFragment : Fragment() {
                 if (!it) findNavController().popBackStack()
             }
 
-        // Flag signifying if the user already allows the app to use the camera
+        // Boolean signifying if the user already allows the app to use the camera
         val isPermitted = ContextCompat.checkSelfPermission(
             activity,
             Manifest.permission.CAMERA,
         )
 
-        /**
-         * If the camera is not already allowed, the app requests the user for permission,
-         * returning to the previous screen if this permission is denied
-         */
+        // If the camera is not already allowed, the app requests the user for permission,
+        // returning to the previous screen if this permission is denied
         if (isPermitted != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
-        /**
-         * If a picture is already being processed, the app shows the user a popup telling them to
-         * wait, otherwise a picture is taken. This is to avoid multiple calls to the parser at once,
-         * which would have undefined behaviour
-         */
+        // If a picture is already being processed, the app shows the user a popup telling them to
+        // wait, otherwise a picture is taken. This is to avoid multiple calls to the parser at
+        // once, which would have undefined behaviour
         binding.captureButton.setOnClickListener {
             if (!cameraLocked) {
                 takePicture()
@@ -112,7 +106,6 @@ class CameraFragment : Fragment() {
         startCamera()
     }
 
-
     override fun onPause() {
         super.onPause()
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -136,6 +129,10 @@ class CameraFragment : Fragment() {
             }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             imageCapture = ImageCapture.Builder().build()
+
+            // Tries to attach the camera to the Fragments lifecycle
+            // If, for whatever reason, this fails it navigates back to the previous screen, as
+            // the use of the camera is necessary here
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
@@ -146,14 +143,18 @@ class CameraFragment : Fragment() {
                 )
             } catch (e: Exception) {
                 Log.e("Camera", "Failed", e)
+                findNavController().popBackStack()
             }
         }, ContextCompat.getMainExecutor(activity))
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     private fun takePicture() {
-        // Makes sure that the camera is set up to allow for a picture to be taken,
+        // Makes sure that the camera is set up to allow for a picture to be taken, returning early
+        // if it not properly set up
         val imageCapture = imageCapture ?: return
+        // This is explicitly run after the image has been captured, and only in the case that it is
+        // captured successfully
         val callback = object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
@@ -163,18 +164,26 @@ class CameraFragment : Fragment() {
                     val inputImage =
                         InputImage.fromMediaImage(rawImage, image.imageInfo.rotationDegrees)
                     recogniser.process(inputImage).addOnSuccessListener {
-                        Log.e("TR", "SUCCESS - ${it.textBlocks.size}")
+                        // Unlocks the camera once the image has been captured
                         cameraLocked = false
-                        val tokenRelations = TokenFieldBuilder()
-                            .addKeyWordRelation("Items", 1, CHECK_AFTER)
-                            .addKeyWordRelation(arrayListOf("BALANCE", "TO", "PAY"), 1, CHECK_AFTER)
-                            .build()
 
-                        val parser = Parser(tokenRelations)
+                        // Gets the fields for the receipt type selected in the
+                        // ReceiptCreationFragment
+                        val receiptType = receiptViewmodel.getReceipt().type
+                        val fields = FieldTemplate.getFieldsById(receiptType)
+
+                        // Extracts the required information from the receipt, and creates a
+                        // normalized receipt from the result
+                        // These could be merged into one method, however, I have kept them separate
+                        // to make the flow between the methods explicit
+                        val parser = Parser(fields)
                         val tokens = parser.tokenize(it)
                         val relations = parser.generateRelations(tokens)
                         val syntaxTree = parser.createSyntaxTree(relations)
-                        val receipt = parser.createReceipt(syntaxTree, MARKS_AND_SPENCERS_ID)
+                        val receipt = parser.createReceipt(syntaxTree, receiptType)
+
+                        // If it fails to create a receipt, the user is shown an error and allowed
+                        // to try again
                         if (receipt == null) {
                             Toast.makeText(
                                 activity,
@@ -186,8 +195,13 @@ class CameraFragment : Fragment() {
                         receiptViewmodel.setNormalizedReceipt(receipt)
                         findNavController().navigate(R.id.action_cameraFragment_to_receiptFragment)
                     }.addOnFailureListener {
+                        // Unlocks the camera, and allows the user to retake a picture
                         cameraLocked = false
-                        Log.e("TR", "FAILED - ${it.message}")
+                        Toast.makeText(
+                            activity,
+                            "Text Extraction Failed! Please try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }

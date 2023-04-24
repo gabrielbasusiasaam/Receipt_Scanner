@@ -18,6 +18,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
+
+        // Gets the value of the user's theme stored in shared preferences
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val darkKey = getString(R.string.dark_mode)
         val mode = if (preferences.getBoolean(darkKey, false)) MODE_NIGHT_YES else MODE_NIGHT_NO

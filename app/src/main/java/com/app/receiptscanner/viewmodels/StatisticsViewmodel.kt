@@ -5,25 +5,31 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.receiptscanner.database.Receipt
-import com.app.receiptscanner.database.ReceiptRepository
 import com.app.receiptscanner.storage.NormalizedReceipt
 import com.app.receiptscanner.storage.StorageHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.sqrt
 
-class StatisticsViewmodel(
-    private val receiptRepository: ReceiptRepository,
-    application: Application,
-) : AndroidViewModel(application) {
+class StatisticsViewmodel(application: Application) : AndroidViewModel(application) {
     private val dispatcher = Dispatchers.IO
     private val receipts: ArrayList<Receipt> = arrayListOf()
+    private var results: StatisticsResult? = null
 
     fun setReceipts(receiptList: List<Receipt>) {
         receipts.clear()
         receipts.addAll(receiptList)
+    }
+
+    fun setResults(result: StatisticsResult) {
+        results = result
+    }
+
+    fun getResults(): StatisticsResult {
+        return results!!
     }
 
     fun calculateStatistics(endAction: (StatisticsResult) -> Unit) = viewModelScope.launch {
@@ -32,28 +38,28 @@ class StatisticsViewmodel(
         val normalizedReceipts = receipts.map {
             storageHandler.readReceipt(it, context.filesDir.path)
         }
-        var sum = 0f
-        var squareSum = 0f
-        val providerTotal = hashMapOf<Int, Float>()
+        var sum = BigDecimal(0)
+        var squareSum = BigDecimal(0)
+        val providerTotal = hashMapOf<Int, BigDecimal>()
         // Stores costs for a receipt
-        val costs = arrayListOf<Pair<NormalizedReceipt, Float>>()
+        val costs = arrayListOf<Pair<NormalizedReceipt, BigDecimal>>()
         normalizedReceipts.forEach {
-            val field = it.fields.get(it.fields.totalField) ?: return@forEach
+            val field = it.fields[it.fields.costField] ?: return@forEach
             Log.e("DATA", field.data.toString())
-            val totalCost = field.data[0].toFloat()
+            val totalCost = field.data[0].toBigDecimal()
             sum += totalCost
             squareSum += totalCost * totalCost
-            if (providerTotal.containsKey(field.type)) {
-                providerTotal[field.type] = providerTotal[field.type]!! + totalCost
+            if (providerTotal.containsKey(it.type)) {
+                providerTotal[it.type] = providerTotal[it.type]!! + totalCost
             } else {
-                providerTotal[field.type] = totalCost
+                providerTotal[it.type] = totalCost
             }
             costs.add(Pair(it, totalCost))
         }
         costs.sortByDescending { it.second }
-        val mean = sum / normalizedReceipts.size
-        val variance = (squareSum / normalizedReceipts.size) - mean * mean
-        val standardDeviation = sqrt(variance)
+        val mean = sum / BigDecimal(normalizedReceipts.size)
+        val variance = (squareSum / BigDecimal(normalizedReceipts.size)) - mean * mean
+        val standardDeviation = sqrt(variance.toFloat()).toBigDecimal()
 
         // https://stackoverflow.com/questions/65144865/use-fold-to-find-the-mode-of-any-list-in-kotlin
         val (mode, _) = costs.groupingBy { it }.eachCount().maxByOrNull { it.value }!!
@@ -75,11 +81,14 @@ class StatisticsViewmodel(
         endAction.invoke(result)
     }
 
-    private fun interpolate(data: List<Pair<NormalizedReceipt, Float>>, position: Double): Float {
+    private fun interpolate(
+        data: List<Pair<NormalizedReceipt, BigDecimal>>,
+        position: Double
+    ): BigDecimal {
         val lowerBound = data[floor(position).toInt()].second
-        val upperBound = data[ceil(position).toInt()].second
+        val upperBound = data[ceil(position).toInt().coerceAtMost(data.lastIndex)].second
         val fraction = position % 1
-        return (lowerBound * (1.0 - fraction) + upperBound * fraction).toFloat()
+        return (lowerBound * BigDecimal(1.0 - fraction) + upperBound * BigDecimal(fraction))
     }
 
 }
